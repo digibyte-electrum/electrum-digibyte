@@ -390,7 +390,11 @@ class Blockchain(Logger):
         num = len(data) // HEADER_SIZE
         start_height = index * CHUNK_SIZE
         prev_hash = self.get_hash(start_height - 1)
-        target = self.get_target(index-1)
+        if constants.net.NET_NAME == 'digibyte':
+            from .digibyte_difficulty import next_bits, bits_to_target
+            history = [self.read_header(h) for h in range(max(0, start_height - 145), start_height)]
+        else:
+            target = self.get_target(index-1)
         for i in range(num):
             height = start_height + i
             try:
@@ -399,8 +403,18 @@ class Blockchain(Logger):
                 expected_header_hash = None
             raw_header = data[i*HEADER_SIZE : (i+1)*HEADER_SIZE]
             header = deserialize_header(raw_header, index*CHUNK_SIZE + i)
+            if constants.net.NET_NAME == 'digibyte':
+                # The genesis header has no predecessor from which to derive
+                # difficulty; its hash and compact bits are fixed by the
+                # network parameters and are checked below.
+                target = (bits_to_target(header['bits']) if height == 0
+                          else bits_to_target(next_bits(history, header)))
             self.verify_header(header, prev_hash, target, expected_header_hash)
             prev_hash = hash_header(header)
+            if constants.net.NET_NAME == 'digibyte':
+                history.append(header)
+                if len(history) > 145:
+                    del history[:-145]
 
     @with_lock
     def path(self) -> Path:
@@ -706,8 +720,13 @@ class Blockchain(Logger):
         if prev_hash != header.get('prev_block_hash'):
             return False
         try:
-            target = self.get_target(height // CHUNK_SIZE - 1)
-        except MissingHeader:
+            if constants.net.NET_NAME == 'digibyte':
+                from .digibyte_difficulty import next_bits, bits_to_target
+                history = [self.read_header(h) for h in range(max(0, height - 145), height)]
+                target = bits_to_target(next_bits(history, header))
+            else:
+                target = self.get_target(height // CHUNK_SIZE - 1)
+        except (MissingHeader, ValueError):
             return False
         try:
             self.verify_header(header, prev_hash, target)

@@ -6,7 +6,7 @@ incrementally and keeps the upstream Electrum sources available through the
 
 ## Current milestone
 
-`DGB-ELECTRUM-PROTOCOL-CONNECTION-COMPLETE` — live electrs connection smoke test complete.
+`DGB-ELECTRUM-DIGIBYTE-CONSENSUS-HEADERS` — client-side consensus validation in progress.
 
 Completed so far:
 
@@ -47,8 +47,10 @@ DIGIBYTE_CORE_DIR=/path/to/digibyte-core ./contrib/build_digibyte_pow.sh
 ```
 
 This builds the ignored project-local `.build/libdigibytepow.so`. A C++17/20
-compiler is required. Full DigiByte difficulty/target validation is still in
-progress.
+compiler is required. The client now has the multi-algorithm PoW adapter and
+the DigiByte V1--V4 context-aware difficulty path; live header synchronization
+still requires operator validation against the TrueNAS electrs endpoint and
+verified mainnet header vectors.
 
 ## Tests
 
@@ -63,7 +65,7 @@ export LD_LIBRARY_PATH="$PWD/.build/libsecp${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
   tests/test_network.py
 ```
 
-The current baseline is 95 passing tests.
+The current baseline is 96 passing tests.
 
 ## Local electrs smoke test
 
@@ -106,6 +108,7 @@ Update this section as the client implementation advances:
 - [x] Full standard wallet creation and restore compatibility.
 - [x] Qt GUI smoke test and DigiByte data-directory validation.
 - [x] Live Electrum protocol connection and daemon `getinfo` validation against operator-selected electrs.
+- [x] DigiByte multi-algorithm PoW dispatch and V1--V4 difficulty validation path.
 - [ ] Full header synchronization and wallet query validation.
 - [ ] Packaging updates.
 

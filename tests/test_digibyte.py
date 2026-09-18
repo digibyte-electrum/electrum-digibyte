@@ -9,6 +9,7 @@ from electrum import util
 from electrum.wallet import Standard_Wallet
 from electrum.wallet_db import WalletDB
 from electrum.network import parse_servers
+from electrum.digibyte_difficulty import POW_LIMIT, next_bits, target_to_bits
 
 
 
@@ -67,6 +68,22 @@ def test_digibyte_protocol_server_defaults(monkeypatch):
 
     assert constants.DigiByteMainnet.DEFAULT_SERVERS == {}
     assert parsed['example.test']['t'] == '50011'
+
+
+def test_digibyte_difficulty_uses_context_and_core_eras():
+    def history(count, bits=target_to_bits(POW_LIMIT)):
+        return [
+            {'version': 0x0200 if height >= 145000 else 1,
+             'timestamp': 1_000_000_000 + height * 15,
+             'bits': bits}
+            for height in range(count)
+        ]
+
+    # Before the first DigiShield retarget, the preceding block's bits apply.
+    assert next_bits(history(1), {'version': 1, 'timestamp': 0, 'bits': 0}) == target_to_bits(POW_LIMIT)
+    # The first DigiShield retarget is based on its 144-block window.
+    headers = history(144)
+    assert next_bits(headers, {'version': 1, 'timestamp': 0, 'bits': 0}) < target_to_bits(POW_LIMIT)
 
 
 def test_create_and_restore_standard_wallet():
