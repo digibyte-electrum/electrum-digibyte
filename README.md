@@ -1,3 +1,88 @@
+# Electrum-DigiByte
+
+This repository is the DigiByte client based on Electrum. It is being built
+incrementally and keeps the upstream Electrum sources available through the
+`upstream` Git remote.
+
+## Current milestone
+
+`DGB-ELECTRUM-CLIENT-BUILD-START` — DigiByte network foundation complete.
+
+Completed so far:
+
+- DigiByte mainnet parameters and address prefixes are defined.
+- The client default network is DigiByte.
+- The DigiByte electrs TCP port is `50011` (`50012` for TLS).
+- POSIX client data is stored below `$HOME/.electrum-digibyte`.
+- Production `servers.json` is intentionally empty. Users select their own
+  electrs server; no private LAN endpoint is embedded in the client.
+- A persistent `run_digibyte` launcher is provided.
+
+## Development setup
+
+The project-local development environment is kept in the ignored `.venv/` and
+`.build/` directories, so no persistent tooling is stored under `/tmp`.
+Additional project development packages are listed in:
+
+```text
+contrib/requirements/requirements-digibyte-dev.txt
+```
+
+If the local environment has already been prepared, run the client with:
+
+```bash
+./run_digibyte --help
+```
+
+`run_digibyte` supplies the project-local libsecp256k1 library path and uses
+the project virtual environment.
+
+## Tests
+
+Run the DigiByte and related upstream-focused tests with:
+
+```bash
+export LD_LIBRARY_PATH="$PWD/.build/libsecp${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+.venv/bin/pytest -q \
+  tests/test_simple_config.py \
+  tests/test_digibyte.py \
+  tests/test_bitcoin.py \
+  tests/test_network.py
+```
+
+The current baseline is 91 passing tests.
+
+## Local electrs smoke test
+
+The server endpoint must be supplied explicitly for a local test. Replace the
+example address with the electrs server selected by the operator:
+
+```bash
+./run_digibyte \
+  --digibyte \
+  daemon -d \
+  -s 192.168.1.66:50011:t \
+  -1
+
+./run_digibyte --digibyte getinfo
+./run_digibyte --digibyte stop
+```
+
+Command-specific options such as `-s` and `-1` must appear after `daemon`.
+The endpoint above is only a local test example and is not production
+configuration.
+
+## Milestone log
+
+Update this section as the client implementation advances:
+
+- [x] DigiByte client network foundation and local electrs smoke test.
+- [ ] Wallet and address-generation compatibility.
+- [ ] Electrum protocol and synchronization validation.
+- [ ] GUI and packaging updates.
+
+---
+
 # Electrum - Lightweight Bitcoin client
 
 ```
