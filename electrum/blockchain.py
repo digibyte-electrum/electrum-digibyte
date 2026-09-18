@@ -383,7 +383,11 @@ class Blockchain(Logger):
         bits = cls.target_to_bits(target)
         if bits != header.get('bits'):
             raise InvalidHeader("bits mismatch: %s vs %s" % (bits, header.get('bits')))
-        _pow_hash = (bfh(pow_hash_header(header)) if pow_hash_value is None else pow_hash_value)
+        # Native DigiByte hashing returns the serialized uint256 byte order.
+        # The integer comparison is against the displayed big-endian hash
+        # order used by the existing Electrum validation path.
+        _pow_hash = (bfh(pow_hash_header(header))
+                     if pow_hash_value is None else pow_hash_value[::-1])
         pow_hash_as_num = int.from_bytes(_pow_hash, byteorder='big')
         if pow_hash_as_num > target:
             raise InvalidHeader(f"insufficient proof of work: {pow_hash_as_num} vs target {target}")
