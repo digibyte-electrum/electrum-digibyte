@@ -74,6 +74,18 @@ Command-specific options such as `-s` and `-1` must appear after `daemon`.
 The endpoint above is only a local test example and is not production
 configuration.
 
+For repeatable full query validation, provide the endpoint and a DigiByte
+address manually:
+
+```bash
+./contrib/testing/digibyte_protocol_smoke.sh \
+  192.168.1.66:50011:t \
+  <DigiByte-address>
+```
+
+The script waits for a connected daemon and queries address history, balance,
+and unspent outputs. It does not store the endpoint in client configuration.
+
 ## Milestone log
 
 Update this section as the client implementation advances:
