@@ -103,7 +103,9 @@ def next_bits(headers: Sequence[dict], candidate: dict) -> int:
             timespan = max(target_span // 4, min(target_span * 4, timespan))
         return target_to_bits(bits_to_target(last["bits"]) * timespan // target_span)
 
-    same = list(_same_algo(headers, height - 1, algo))
+    # ``headers`` is a bounded rolling window, so the search bound is a
+    # local list index even though each header retains its absolute height.
+    same = list(_same_algo(headers, len(headers) - 1, algo))
     if not same:
         return target_to_bits(POW_LIMIT)
     previous_algo = same[0]
@@ -111,7 +113,7 @@ def next_bits(headers: Sequence[dict], candidate: dict) -> int:
         if len(same) < AVERAGING_INTERVAL:
             return target_to_bits(POW_LIMIT)
         first = headers[same[AVERAGING_INTERVAL - 1]]
-        timespan = headers[previous_algo]["timestamp"] - headers[first]["timestamp"]
+        timespan = headers[previous_algo]["timestamp"] - first["timestamp"]
         timespan = max(MIN_TIMESPAN, min(MAX_TIMESPAN, timespan))
         return target_to_bits(bits_to_target(headers[previous_algo]["bits"]) * timespan // AVERAGING_TARGET)
 

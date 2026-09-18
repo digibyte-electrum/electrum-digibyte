@@ -86,6 +86,19 @@ def test_digibyte_difficulty_uses_context_and_core_eras():
     headers = history(144)
     assert next_bits(headers, {'version': 1, 'timestamp': 0, 'bits': 0}) < target_to_bits(POW_LIMIT)
 
+    # The rolling context must translate absolute heights to local indexes at
+    # the V1-to-V2 multi-algorithm transition.
+    transition = [
+        {'block_height': height, 'version': 0x0200 + ((height % 5) << 8),
+         'timestamp': 1_002_000_000 + height * 15,
+         'bits': target_to_bits(POW_LIMIT)}
+        for height in range(145006, 145151)
+    ]
+    assert next_bits(transition, {
+        'block_height': 145151, 'version': 0x0200,
+        'timestamp': 1_004_177_265, 'bits': 0,
+    }) > 0
+
 
 def test_digibyte_batch_pow_matches_scalar_pow():
     second = bytearray(80)
