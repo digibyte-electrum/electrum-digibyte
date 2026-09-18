@@ -50,7 +50,9 @@ def target_to_bits(target: int) -> int:
 
 
 def algorithm(version: int, height: int) -> int:
-    if height < MULTI_ALGO_HEIGHT:
+    # Core selects the era from pindexLast (the candidate height minus one),
+    # so the boundary candidate itself still uses the preceding era.
+    if height <= MULTI_ALGO_HEIGHT:
         return 1  # Scrypt was the sole mainnet algorithm.
     return (version >> 8) & 0x0f
 
@@ -109,7 +111,7 @@ def next_bits(headers: Sequence[dict], candidate: dict) -> int:
     if not same:
         return target_to_bits(POW_LIMIT)
     previous_algo = same[0]
-    if height < ALWAYS_UPDATE_HEIGHT:
+    if height <= ALWAYS_UPDATE_HEIGHT:
         if len(same) < AVERAGING_INTERVAL:
             return target_to_bits(POW_LIMIT)
         first = headers[same[AVERAGING_INTERVAL - 1]]
@@ -117,7 +119,7 @@ def next_bits(headers: Sequence[dict], candidate: dict) -> int:
         timespan = max(MIN_TIMESPAN, min(MAX_TIMESPAN, timespan))
         return target_to_bits(bits_to_target(headers[previous_algo]["bits"]) * timespan // AVERAGING_TARGET)
 
-    if height < V4_HEIGHT:
+    if height <= V4_HEIGHT:
         first_height = height - 1 - NUM_ALGOS * AVERAGING_INTERVAL
         if first_height < 0:
             return target_to_bits(POW_LIMIT)
