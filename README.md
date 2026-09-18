@@ -109,6 +109,7 @@ Update this section as the client implementation advances:
 - [x] Qt GUI smoke test and DigiByte data-directory validation.
 - [x] Live Electrum protocol connection and daemon `getinfo` validation against operator-selected electrs.
 - [x] DigiByte multi-algorithm PoW dispatch and V1--V4 difficulty validation path.
+- [x] Operator smoke test confirmed verified header synchronization reaching height 80,639.
 - [ ] Full header synchronization and wallet query validation.
 - [ ] Packaging updates.
 
