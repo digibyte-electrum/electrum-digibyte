@@ -39,6 +39,17 @@ If the local environment has already been prepared, run the client with:
 `run_digibyte` supplies the project-local libsecp256k1 library path and uses
 the project virtual environment.
 
+The DigiByte PoW adapter is built from an official DigiByte Core source
+checkout:
+
+```bash
+DIGIBYTE_CORE_DIR=/path/to/digibyte-core ./contrib/build_digibyte_pow.sh
+```
+
+This builds the ignored project-local `.build/libdigibytepow.so`. A C++17/20
+compiler is required. Full DigiByte difficulty/target validation is still in
+progress.
+
 ## Tests
 
 Run the DigiByte and related upstream-focused tests with:

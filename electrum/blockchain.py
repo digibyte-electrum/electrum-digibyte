@@ -92,7 +92,12 @@ def hash_raw_header(header: bytes) -> str:
     return hash_encode(sha256d(header))
 
 
-pow_hash_header = hash_header
+def pow_hash_header(header: Optional[dict]) -> str:
+    if constants.net.NET_NAME == 'digibyte':
+        from .digibyte_pow import pow_hash
+        raw_header = serialize_header(header)
+        return hash_encode(pow_hash(raw_header, version=header['version'], timestamp=header['timestamp']))
+    return hash_header(header)
 
 
 # block hash -> chain work; up to and including that block
