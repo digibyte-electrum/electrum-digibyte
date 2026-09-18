@@ -6,7 +6,7 @@ incrementally and keeps the upstream Electrum sources available through the
 
 ## Current milestone
 
-`DGB-ELECTRUM-PROTOCOL-SYNC-START` — client-side protocol checks in progress.
+`DGB-ELECTRUM-PROTOCOL-CONNECTION-COMPLETE` — live electrs connection smoke test complete.
 
 Completed so far:
 
@@ -82,7 +82,8 @@ Update this section as the client implementation advances:
 - [x] Wallet address-format primitives and BIP44 path compatibility.
 - [x] Full standard wallet creation and restore compatibility.
 - [x] Qt GUI smoke test and DigiByte data-directory validation.
-- [ ] Live Electrum protocol and synchronization validation against operator-selected electrs.
+- [x] Live Electrum protocol connection and daemon `getinfo` validation against operator-selected electrs.
+- [ ] Full header synchronization and wallet query validation.
 - [ ] Packaging updates.
 
 ---
