@@ -8,6 +8,7 @@ from electrum import SimpleConfig
 from electrum import util
 from electrum.wallet import Standard_Wallet
 from electrum.wallet_db import WalletDB
+from electrum.network import parse_servers
 
 
 
@@ -58,6 +59,14 @@ def test_digibyte_wif_and_bip44(monkeypatch):
     assert wif == "p2pkh:KwFfNUhSDaASSAwtG7ssQM1uVX8RgX5GHWnnLfhfiQDigjioWXHH"
     assert bitcoin.deserialize_privkey(wif)[1:] == (secret, True)
     assert keystore.bip44_derivation(0) == "m/44h/20h/0h"
+
+
+def test_digibyte_protocol_server_defaults(monkeypatch):
+    monkeypatch.setattr(constants, "net", constants.DigiByteMainnet)
+    parsed = parse_servers([['server.version', 'example.test', ['t']]])
+
+    assert constants.DigiByteMainnet.DEFAULT_SERVERS == {}
+    assert parsed['example.test']['t'] == '50011'
 
 
 def test_create_and_restore_standard_wallet():

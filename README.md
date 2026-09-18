@@ -6,7 +6,7 @@ incrementally and keeps the upstream Electrum sources available through the
 
 ## Current milestone
 
-`DGB-ELECTRUM-GUI-SMOKE-COMPLETE` — Qt GUI smoke test complete.
+`DGB-ELECTRUM-PROTOCOL-SYNC-START` — client-side protocol checks in progress.
 
 Completed so far:
 
@@ -52,7 +52,7 @@ export LD_LIBRARY_PATH="$PWD/.build/libsecp${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
   tests/test_network.py
 ```
 
-The current baseline is 94 passing tests.
+The current baseline is 95 passing tests.
 
 ## Local electrs smoke test
 
@@ -82,7 +82,7 @@ Update this section as the client implementation advances:
 - [x] Wallet address-format primitives and BIP44 path compatibility.
 - [x] Full standard wallet creation and restore compatibility.
 - [x] Qt GUI smoke test and DigiByte data-directory validation.
-- [ ] Electrum protocol and synchronization validation.
+- [ ] Live Electrum protocol and synchronization validation against operator-selected electrs.
 - [ ] Packaging updates.
 
 ---
