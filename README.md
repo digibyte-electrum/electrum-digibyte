@@ -6,7 +6,7 @@ incrementally and keeps the upstream Electrum sources available through the
 
 ## Current milestone
 
-`DGB-ELECTRUM-CLIENT-BUILD-START` — DigiByte network foundation complete.
+`DGB-WALLET-ADDRESS-COMPATIBILITY-COMPLETE` — wallet and address compatibility complete.
 
 Completed so far:
 
@@ -50,7 +50,7 @@ export LD_LIBRARY_PATH="$PWD/.build/libsecp${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
   tests/test_network.py
 ```
 
-The current baseline is 93 passing tests.
+The current baseline is 94 passing tests.
 
 ## Local electrs smoke test
 
@@ -78,9 +78,10 @@ Update this section as the client implementation advances:
 
 - [x] DigiByte client network foundation and local electrs smoke test.
 - [x] Wallet address-format primitives and BIP44 path compatibility.
-- [ ] Full wallet creation and restore compatibility.
+- [x] Full standard wallet creation and restore compatibility.
 - [ ] Electrum protocol and synchronization validation.
-- [ ] GUI and packaging updates.
+- [ ] Qt GUI smoke test and DigiByte UI updates.
+- [ ] Packaging updates.
 
 ---
 

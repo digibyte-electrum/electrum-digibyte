@@ -1,7 +1,14 @@
+import asyncio
+import tempfile
+
 from electrum import constants
 from electrum import bitcoin
 from electrum import keystore
+from electrum import SimpleConfig
 from electrum import util
+from electrum.wallet import Standard_Wallet
+from electrum.wallet_db import WalletDB
+
 
 
 def test_digibyte_mainnet_parameters():
@@ -51,3 +58,33 @@ def test_digibyte_wif_and_bip44(monkeypatch):
     assert wif == "p2pkh:KwFfNUhSDaASSAwtG7ssQM1uVX8RgX5GHWnnLfhfiQDigjioWXHH"
     assert bitcoin.deserialize_privkey(wif)[1:] == (secret, True)
     assert keystore.bip44_derivation(0) == "m/44h/20h/0h"
+
+
+def test_create_and_restore_standard_wallet():
+    async def run_test():
+        constants.DigiByteMainnet.set_as_network()
+        wallet = None
+        try:
+            seed = "cycle rocket west magnet parrot shuffle foot correct salt library feed song"
+            with tempfile.TemporaryDirectory() as electrum_path:
+                config = SimpleConfig({'electrum_path': electrum_path, 'digibyte': True})
+
+                keystore_from_seed = keystore.from_seed(seed, passphrase='', for_multisig=False)
+                db = WalletDB('', storage=None, upgrade=True)
+                db.put('keystore', keystore_from_seed.dump())
+                db.put('gap_limit', 1)
+                db.put('gap_limit_for_change', 1)
+                wallet = Standard_Wallet(db, config=config)
+
+                assert wallet.txin_type == 'p2pkh'
+                assert wallet.get_receiving_addresses()[0] == 'DSWrS9ierLPZAqN6nyQfYgmeT5maTxfW3d'
+                assert wallet.get_change_addresses()[0] == 'DPakXoJLTiFoNFn5ym1sRTiGyHD89H21mz'
+
+                restored_keystore = keystore.from_seed(seed, passphrase='', for_multisig=False)
+                assert restored_keystore.xpub == keystore_from_seed.xpub
+        finally:
+            if wallet is not None:
+                await wallet.stop()
+            constants.BitcoinMainnet.set_as_network()
+
+    asyncio.run(run_test())
