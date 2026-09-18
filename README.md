@@ -6,7 +6,7 @@ incrementally and keeps the upstream Electrum sources available through the
 
 ## Current milestone
 
-`DGB-WALLET-ADDRESS-COMPATIBILITY-COMPLETE` — wallet and address compatibility complete.
+`DGB-ELECTRUM-GUI-SMOKE-COMPLETE` — Qt GUI smoke test complete.
 
 Completed so far:
 
@@ -17,6 +17,8 @@ Completed so far:
 - Production `servers.json` is intentionally empty. Users select their own
   electrs server; no private LAN endpoint is embedded in the client.
 - A persistent `run_digibyte` launcher is provided.
+- The existing Qt GUI launches with DigiByte selected and uses the DigiByte
+  data directory.
 
 ## Development setup
 
@@ -79,8 +81,8 @@ Update this section as the client implementation advances:
 - [x] DigiByte client network foundation and local electrs smoke test.
 - [x] Wallet address-format primitives and BIP44 path compatibility.
 - [x] Full standard wallet creation and restore compatibility.
+- [x] Qt GUI smoke test and DigiByte data-directory validation.
 - [ ] Electrum protocol and synchronization validation.
-- [ ] Qt GUI smoke test and DigiByte UI updates.
 - [ ] Packaging updates.
 
 ---
