@@ -358,6 +358,12 @@ def parse_command_line(simple_parser=False) -> Dict:
     return config_options
 
 
+def set_default_chain(config_options: dict) -> None:
+    """Use DigiByte for this client unless the user selected another chain."""
+    if not any(config_options.get(chain.config_key()) for chain in constants.NETS_LIST):
+        config_options[constants.DigiByteMainnet.config_key()] = True
+
+
 def main():
     global loop, stop_loop, loop_thread
     # The hook will only be used in the Qt GUI right now
@@ -414,12 +420,14 @@ def main():
                 sys.argv.remove(x)
         # parse first without plugins
         config_options = parse_command_line(simple_parser=True)
+        set_default_chain(config_options)
         tmp_config = read_config(config_options)
         # load (only) the commands modules of plugins so their commands are registered
         _plugin_commands = Plugins(tmp_config, cmd_only=True)
         # re-parse command line
         sys.argv = saved_sys_argv[:]
         config_options = parse_command_line()
+        set_default_chain(config_options)
 
     config = read_config(config_options)
     cmdname = config.get('cmd')

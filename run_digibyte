@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+project_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+export LD_LIBRARY_PATH="$project_dir/.build/libsecp${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+exec "$project_dir/.venv/bin/python" "$project_dir/run_electrum" "$@"

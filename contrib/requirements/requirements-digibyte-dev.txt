@@ -1,0 +1,4 @@
+# Additional development tools used by the DigiByte client checkout.
+pycryptodomex
+polib
+unidiff
