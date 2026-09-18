@@ -370,7 +370,9 @@ class Blockchain(Logger):
         self._size = os.path.getsize(p)//HEADER_SIZE if p.exists() else 0
 
     @classmethod
-    def verify_header(cls, header: dict, prev_hash: str, target: int, expected_header_hash: str=None) -> None:
+    def verify_header(cls, header: dict, prev_hash: str, target: int,
+                      expected_header_hash: str=None,
+                      pow_hash_value: Optional[bytes]=None) -> None:
         _hash = hash_header(header)
         if expected_header_hash and expected_header_hash != _hash:
             raise InvalidHeader("hash mismatches with expected: {} vs {}".format(expected_header_hash, _hash))
@@ -381,8 +383,8 @@ class Blockchain(Logger):
         bits = cls.target_to_bits(target)
         if bits != header.get('bits'):
             raise InvalidHeader("bits mismatch: %s vs %s" % (bits, header.get('bits')))
-        _pow_hash = pow_hash_header(header)
-        pow_hash_as_num = int.from_bytes(bfh(_pow_hash), byteorder='big')
+        _pow_hash = (bfh(pow_hash_header(header)) if pow_hash_value is None else pow_hash_value)
+        pow_hash_as_num = int.from_bytes(_pow_hash, byteorder='big')
         if pow_hash_as_num > target:
             raise InvalidHeader(f"insufficient proof of work: {pow_hash_as_num} vs target {target}")
 
@@ -392,9 +394,11 @@ class Blockchain(Logger):
         prev_hash = self.get_hash(start_height - 1)
         if constants.net.NET_NAME == 'digibyte':
             from .digibyte_difficulty import next_bits, bits_to_target
+            from .digibyte_pow import pow_hash_batch
             history = [self.read_header(h) for h in range(max(0, start_height - 145), start_height)]
         else:
             target = self.get_target(index-1)
+        headers = []
         for i in range(num):
             height = start_height + i
             try:
@@ -403,13 +407,19 @@ class Blockchain(Logger):
                 expected_header_hash = None
             raw_header = data[i*HEADER_SIZE : (i+1)*HEADER_SIZE]
             header = deserialize_header(raw_header, index*CHUNK_SIZE + i)
+            headers.append((header, raw_header, expected_header_hash))
+        pow_hashes = (pow_hash_batch(b''.join(raw for _, raw, _ in headers))
+                      if constants.net.NET_NAME == 'digibyte' else [None] * num)
+        for i, (header, raw_header, expected_header_hash) in enumerate(headers):
+            height = start_height + i
             if constants.net.NET_NAME == 'digibyte':
                 # The genesis header has no predecessor from which to derive
                 # difficulty; its hash and compact bits are fixed by the
                 # network parameters and are checked below.
                 target = (bits_to_target(header['bits']) if height == 0
                           else bits_to_target(next_bits(history, header)))
-            self.verify_header(header, prev_hash, target, expected_header_hash)
+            self.verify_header(header, prev_hash, target, expected_header_hash,
+                               pow_hash_value=pow_hashes[i])
             prev_hash = hash_header(header)
             if constants.net.NET_NAME == 'digibyte':
                 history.append(header)

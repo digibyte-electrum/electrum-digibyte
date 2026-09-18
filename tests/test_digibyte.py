@@ -10,6 +10,7 @@ from electrum.wallet import Standard_Wallet
 from electrum.wallet_db import WalletDB
 from electrum.network import parse_servers
 from electrum.digibyte_difficulty import POW_LIMIT, next_bits, target_to_bits
+from electrum.digibyte_pow import pow_hash, pow_hash_batch
 
 
 
@@ -84,6 +85,17 @@ def test_digibyte_difficulty_uses_context_and_core_eras():
     # The first DigiShield retarget is based on its 144-block window.
     headers = history(144)
     assert next_bits(headers, {'version': 1, 'timestamp': 0, 'bits': 0}) < target_to_bits(POW_LIMIT)
+
+
+def test_digibyte_batch_pow_matches_scalar_pow():
+    second = bytearray(80)
+    second[0:4] = (0x200).to_bytes(4, 'little')
+    headers = bytes(80) + bytes(second)
+    batch = pow_hash_batch(headers)
+    assert batch == [
+        pow_hash(headers[:80], version=0, timestamp=0),
+        pow_hash(headers[80:], version=0x200, timestamp=0),
+    ]
 
 
 def test_create_and_restore_standard_wallet():

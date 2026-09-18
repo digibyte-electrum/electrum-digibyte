@@ -12,7 +12,7 @@ fi
 out_dir="$project_dir/.build"
 mkdir -p "$out_dir"
 
-g++ -shared -fPIC -O2 -std=c++20 \
+g++ -shared -fPIC -O2 -std=c++20 -pthread \
     -I"$core_dir/src" -I"$core_dir/src/crypto" \
     "$project_dir/contrib/digibyte_pow_adapter.cpp" \
     "$core_dir/src/crypto/sha256.cpp" \

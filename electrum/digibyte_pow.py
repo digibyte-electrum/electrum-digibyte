@@ -35,6 +35,11 @@ def _load_library() -> ctypes.CDLL:
         ctypes.POINTER(ctypes.c_ubyte),
     ]
     _library.digibyte_pow_hash.restype = ctypes.c_int
+    _library.digibyte_pow_hash_batch.argtypes = [
+        ctypes.POINTER(ctypes.c_ubyte), ctypes.c_size_t,
+        ctypes.POINTER(ctypes.c_ubyte),
+    ]
+    _library.digibyte_pow_hash_batch.restype = ctypes.c_int
     return _library
 
 
@@ -47,3 +52,17 @@ def pow_hash(raw_header: bytes, *, version: int, timestamp: int) -> bytes:
     if rc:
         raise ValueError(f'unsupported DigiByte PoW algorithm for version {version:#x}')
     return bytes(output_buf)
+
+
+def pow_hash_batch(raw_headers: bytes) -> list[bytes]:
+    if len(raw_headers) % 80:
+        raise ValueError(f'expected 80-byte headers, got {len(raw_headers)}')
+    count = len(raw_headers) // 80
+    if not count:
+        return []
+    header_buf = (ctypes.c_ubyte * len(raw_headers)).from_buffer_copy(raw_headers)
+    output_buf = (ctypes.c_ubyte * (count * 32))()
+    rc = _load_library().digibyte_pow_hash_batch(header_buf, count, output_buf)
+    if rc:
+        raise ValueError('unsupported DigiByte PoW algorithm in header batch')
+    return [bytes(output_buf[index * 32:(index + 1) * 32]) for index in range(count)]
