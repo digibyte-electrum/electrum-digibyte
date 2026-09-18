@@ -9,7 +9,7 @@ from electrum import util
 from electrum.wallet import Standard_Wallet
 from electrum.wallet_db import WalletDB
 from electrum.network import parse_servers
-from electrum.digibyte_difficulty import POW_LIMIT, next_bits, target_to_bits
+from electrum.digibyte_difficulty import POW_LIMIT, algorithm, next_bits, target_to_bits
 from electrum.digibyte_pow import pow_hash, pow_hash_batch
 
 
@@ -98,6 +98,8 @@ def test_digibyte_difficulty_uses_context_and_core_eras():
         'block_height': 145151, 'version': 0x0200,
         'timestamp': 1_004_177_265, 'bits': 0,
     }) > 0
+    assert algorithm(0x0000, 145001) == 1
+    assert algorithm(0x0200, 145001) == 0
 
 
 def test_digibyte_batch_pow_matches_scalar_pow():

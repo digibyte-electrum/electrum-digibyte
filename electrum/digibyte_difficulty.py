@@ -54,7 +54,16 @@ def algorithm(version: int, height: int) -> int:
     # so the boundary candidate itself still uses the preceding era.
     if height <= MULTI_ALGO_HEIGHT:
         return 1  # Scrypt was the sole mainnet algorithm.
-    return (version >> 8) & 0x0f
+    # Header version bits and Core's internal ALGO_* enum are different:
+    # version 0 means Scrypt, while enum 0 means SHA256d.
+    return {
+        0: 1,   # Scrypt
+        2: 0,   # SHA256d
+        4: 2,   # Groestl
+        6: 3,   # Skein
+        8: 4,   # Qubit
+        14: 7,  # OdoCrypt
+    }.get((version >> 8) & 0x0f, -1)
 
 
 def _median_time(headers: Sequence[dict], end: int) -> int:
