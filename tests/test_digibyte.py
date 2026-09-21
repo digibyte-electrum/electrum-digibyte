@@ -144,6 +144,26 @@ def test_digibyte_core_v1_boundary_header_vectors():
     assert next_bits(headers[:2], headers[2]) == 0x1c01f271
 
 
+def test_digibyte_later_difficulty_era_contexts():
+    version_for_algo = {0: 0x0200, 1: 0x0000, 2: 0x0400, 3: 0x0600, 4: 0x0800}
+    for boundary in (400001, 1430001):
+        start = boundary - 145
+        headers = [
+            {'block_height': height,
+             'version': version_for_algo[height % 5],
+             'timestamp': 1_500_000_000 + height * 15,
+             'bits': target_to_bits(POW_LIMIT)}
+            for height in range(start, boundary)
+        ]
+        bits = next_bits(headers, {
+            'block_height': boundary,
+            'version': version_for_algo[boundary % 5],
+            'timestamp': 1_500_000_000 + boundary * 15,
+            'bits': 0,
+        })
+        assert 0 < bits < (1 << 32)
+
+
 def test_create_and_restore_standard_wallet():
     async def run_test():
         constants.DigiByteMainnet.set_as_network()
