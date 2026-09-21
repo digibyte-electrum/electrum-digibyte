@@ -101,6 +101,19 @@ def test_digibyte_difficulty_uses_context_and_core_eras():
     assert algorithm(0x0000, 145001) == 1
     assert algorithm(0x0200, 145001) == 0
 
+    boundary = [
+        {'block_height': height, 'version': 1,
+         'timestamp': 1_409_580_000 + height * 60,
+         'bits': 0x1c01c521}
+        for height in range(144855, 145000)
+    ]
+    boundary[-2].update(timestamp=1409596290, bits=0x1c01f77a, version=2)
+    boundary[-1].update(timestamp=1409596356, bits=0x1c01c521, version=1)
+    assert next_bits(boundary, {
+        'block_height': 145000, 'version': 2,
+        'timestamp': 1409596362, 'bits': 0,
+    }) == 0x1c01f271
+
 
 def test_digibyte_batch_pow_matches_scalar_pow():
     second = bytearray(80)

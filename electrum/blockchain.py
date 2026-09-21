@@ -382,7 +382,8 @@ class Blockchain(Logger):
             return
         bits = cls.target_to_bits(target)
         if bits != header.get('bits'):
-            raise InvalidHeader("bits mismatch: %s vs %s" % (bits, header.get('bits')))
+            raise InvalidHeader("bits mismatch at height %s: %s vs %s" %
+                                (header.get('block_height'), bits, header.get('bits')))
         # Native DigiByte hashing returns the serialized uint256 byte order.
         # The integer comparison is against the displayed big-endian hash
         # order used by the existing Electrum validation path.

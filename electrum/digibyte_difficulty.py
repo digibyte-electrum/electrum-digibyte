@@ -100,7 +100,7 @@ def next_bits(headers: Sequence[dict], candidate: dict) -> int:
     last = headers[-1]
     algo = algorithm(candidate["version"], height)
 
-    if height < MULTI_ALGO_HEIGHT:
+    if height <= MULTI_ALGO_HEIGHT:
         interval = 1 if height >= 67_200 else 144
         if height % interval:
             return last["bits"]
