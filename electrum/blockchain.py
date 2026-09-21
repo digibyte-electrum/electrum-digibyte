@@ -766,6 +766,11 @@ class Blockchain(Logger):
         try:
             self.verify_header(header, prev_hash, target)
         except BaseException as e:
+            if constants.net.NET_NAME == 'digibyte':
+                self.logger.info(
+                    "DigiByte can_connect rejected header: "
+                    f"height={height} expected_bits={self.target_to_bits(target)} "
+                    f"header_bits={header.get('bits')} reason={e!r}")
             return False
         return True
 
