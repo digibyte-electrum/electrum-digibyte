@@ -11,7 +11,7 @@ from electrum.wallet_db import WalletDB
 from electrum.network import parse_servers
 from electrum.digibyte_difficulty import POW_LIMIT, algorithm, next_bits, target_to_bits
 from electrum.digibyte_pow import pow_hash, pow_hash_batch
-from electrum.blockchain import deserialize_header, hash_header
+from electrum.blockchain import Blockchain, deserialize_header, hash_header
 
 
 
@@ -183,6 +183,20 @@ def test_digibyte_v2_sparse_algorithm_history():
         'bits': 0,
     })
     assert bits != target_to_bits(POW_LIMIT)
+
+
+def test_digibyte_context_retains_sparse_algorithm_history():
+    headers = [{
+        'block_height': height,
+        'version': 1 if height % 30 == 0 else 0x0201,
+        'timestamp': 1_409_590_000 + height * 15,
+        'bits': 0x1c01c521,
+    } for height in range(145001, 145601)]
+
+    context = Blockchain._compress_digibyte_context(headers)
+    scrypt_heights = [h['block_height'] for h in context if h['version'] == 1]
+    assert scrypt_heights == [145320, 145350, 145380, 145410, 145440,
+                              145470, 145500, 145530, 145560, 145590]
 
 
 def test_create_and_restore_standard_wallet():

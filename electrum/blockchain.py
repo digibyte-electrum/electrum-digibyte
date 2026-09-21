@@ -271,6 +271,7 @@ class Blockchain(Logger):
         self._prev_hash = prev_hash  # blockhash immediately before forkpoint
         self.lock = threading.RLock()
         self._digibyte_chainwork_cache = {-1: 0}
+        self._digibyte_context = None
         self.update_size()
 
     @property
@@ -401,7 +402,7 @@ class Blockchain(Logger):
         if constants.net.NET_NAME == 'digibyte':
             from .digibyte_difficulty import next_bits, bits_to_target
             from .digibyte_pow import pow_hash_batch
-            history = [self.read_header(h) for h in range(max(0, start_height - CHUNK_SIZE), start_height)]
+            history = self._get_digibyte_context(start_height)
         else:
             target = self.get_target(index-1)
         headers = []
@@ -429,8 +430,8 @@ class Blockchain(Logger):
             prev_hash = hash_header(header)
             if constants.net.NET_NAME == 'digibyte':
                 history.append(header)
-                if len(history) > CHUNK_SIZE:
-                    del history[:-CHUNK_SIZE]
+        if constants.net.NET_NAME == 'digibyte':
+            self._digibyte_context = self._compress_digibyte_context(history)
 
     @with_lock
     def path(self) -> Path:
@@ -756,7 +757,7 @@ class Blockchain(Logger):
         try:
             if constants.net.NET_NAME == 'digibyte':
                 from .digibyte_difficulty import next_bits, bits_to_target
-                history = [self.read_header(h) for h in range(max(0, height - CHUNK_SIZE), height)]
+                history = self._get_digibyte_context(height)
                 target = bits_to_target(next_bits(history, header))
             else:
                 target = self.get_target(height // CHUNK_SIZE - 1)
@@ -767,6 +768,40 @@ class Blockchain(Logger):
         except BaseException as e:
             return False
         return True
+
+    def _read_digibyte_headers(self, start: int, end: int) -> list[dict]:
+        """Read a contiguous local header range with one file operation."""
+        if end <= start:
+            return []
+        if self.parent is not None:
+            return [self.read_header(height) for height in range(start, end)]
+        with open(self.path(), 'rb') as f:
+            f.seek(start * HEADER_SIZE)
+            raw = f.read((end - start) * HEADER_SIZE)
+        return [deserialize_header(raw[offset:offset + HEADER_SIZE], start + offset // HEADER_SIZE)
+                for offset in range(0, len(raw), HEADER_SIZE)
+                if raw[offset:offset + HEADER_SIZE] != bytes(HEADER_SIZE)]
+
+    @staticmethod
+    def _compress_digibyte_context(headers: list[dict]) -> list[dict]:
+        from .digibyte_difficulty import algorithm
+        selected = {h['block_height']: h for h in headers[-145:]}
+        by_algo = {}
+        for header in reversed(headers):
+            algo = algorithm(header['version'], header['block_height'])
+            entries = by_algo.setdefault(algo, [])
+            if len(entries) < 10:
+                entries.append(header)
+        for entries in by_algo.values():
+            for header in entries:
+                selected[header['block_height']] = header
+        return [selected[height] for height in sorted(selected)]
+
+    def _get_digibyte_context(self, start_height: int) -> list[dict]:
+        if self._digibyte_context is None:
+            headers = self._read_digibyte_headers(0, start_height)
+            self._digibyte_context = self._compress_digibyte_context(headers)
+        return list(self._digibyte_context)
 
     def connect_chunk(self, idx: int, data: bytes) -> bool:
         assert idx >= 0, idx
