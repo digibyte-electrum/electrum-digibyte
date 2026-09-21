@@ -803,7 +803,10 @@ class Blockchain(Logger):
         return [selected[height] for height in sorted(selected)]
 
     def _get_digibyte_context(self, start_height: int) -> list[dict]:
-        if self._digibyte_context is None:
+        available_end = min(start_height, self.height() + 1)
+        cached_end = (self._digibyte_context[-1]['block_height'] + 1
+                      if self._digibyte_context else 0)
+        if self._digibyte_context is None or cached_end < available_end:
             headers = self._read_digibyte_headers(0, start_height)
             self._digibyte_context = self._compress_digibyte_context(headers)
         return list(self._digibyte_context)
