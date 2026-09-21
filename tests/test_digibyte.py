@@ -11,6 +11,7 @@ from electrum.wallet_db import WalletDB
 from electrum.network import parse_servers
 from electrum.digibyte_difficulty import POW_LIMIT, algorithm, next_bits, target_to_bits
 from electrum.digibyte_pow import pow_hash, pow_hash_batch
+from electrum.blockchain import deserialize_header, hash_header
 
 
 
@@ -124,6 +125,23 @@ def test_digibyte_batch_pow_matches_scalar_pow():
         pow_hash(headers[:80], version=0, timestamp=0),
         pow_hash(headers[80:], version=0x200, timestamp=0),
     ]
+
+
+def test_digibyte_core_v1_boundary_header_vectors():
+    raw_headers = {
+        144998: '02000000acd70250d387c7464b409996670b2f56d8ae13c3adf081b1278404b09c463ed9800cc86cad289753e3a544ee7316ec035b429c0212acdfc8b5e1b01ff14056dc82bb04547af7011c2984bc79',
+        144999: '010000003d958255673cbc7a837764b1c82cfe9bf07ad9c70bdd41b23afe670d4eae89eac8a5e6413a4e37eac006bc71b25054306a526f31f011985c0a2608fb7d3af744c4bb045421c5011c5681d819',
+        145000: '02000000288330badce1fb6c6ce47fc1834a38a0fcbb918b819ac42e1ead17d251b24ae94d461e72338b7b42115301d63b06bd6fd2f4c5d3dac1b7639e8feb796ea696c0cabb045471f2011cbe02e20a',
+    }
+    expected_hashes = {
+        144998: 'ea89ae4e0d67fe3ab241dd0bc7d97af09bfe2cc8b16477837abc3c675582953d',
+        144999: 'e94ab251d217ad1e2ec49a818b91bbfca0384a83c17fe46c6cfbe1dcba308328',
+        145000: 'f8d650dda836d5e3809b928b8523f050891c3bb9fa2c201bb04824a8a2fe7df6',
+    }
+    headers = [deserialize_header(bytes.fromhex(raw_headers[h]), h) for h in raw_headers]
+    for header in headers:
+        assert hash_header(header) == expected_hashes[header['block_height']]
+    assert next_bits(headers[:2], headers[2]) == 0x1c01f271
 
 
 def test_create_and_restore_standard_wallet():
