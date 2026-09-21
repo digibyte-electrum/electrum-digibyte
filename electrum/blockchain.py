@@ -270,6 +270,7 @@ class Blockchain(Logger):
         self._forkpoint_hash = forkpoint_hash  # blockhash at forkpoint. "first hash"
         self._prev_hash = prev_hash  # blockhash immediately before forkpoint
         self.lock = threading.RLock()
+        self._digibyte_chainwork_cache = {-1: 0}
         self.update_size()
 
     @property
@@ -688,6 +689,13 @@ class Blockchain(Logger):
 
     def chainwork_of_header_at_height(self, height: int) -> int:
         """work done by single header at given height"""
+        if constants.net.NET_NAME == 'digibyte':
+            from .digibyte_difficulty import bits_to_target
+            header = self.read_header(height)
+            if header is None:
+                raise MissingHeader(height)
+            target = bits_to_target(header['bits'])
+            return ((2 ** 256 - target - 1) // (target + 1)) + 1
         chunk_idx = height // CHUNK_SIZE - 1
         target = self.get_target(chunk_idx)
         work = ((2 ** 256 - target - 1) // (target + 1)) + 1
@@ -701,6 +709,17 @@ class Blockchain(Logger):
             # On testnet/regtest, difficulty works somewhat different.
             # It's out of scope to properly implement that.
             return height
+        if constants.net.NET_NAME == 'digibyte':
+            # DigiByte adjusts difficulty per block and per algorithm; the
+            # Bitcoin chunk-wide target shortcut is not consensus-correct.
+            cached_heights = [h for h in self._digibyte_chainwork_cache if h <= height]
+            cached_height = max(cached_heights)
+            running = self._digibyte_chainwork_cache[cached_height]
+            for block_height in range(cached_height + 1, height + 1):
+                running += self.chainwork_of_header_at_height(block_height)
+                if (block_height + 1) % CHUNK_SIZE == 0 or block_height == height:
+                    self._digibyte_chainwork_cache[block_height] = running
+            return running
         last_retarget = height // CHUNK_SIZE * CHUNK_SIZE - 1
         cached_height = last_retarget
         while _CHAINWORK_CACHE.get(self.get_hash(cached_height)) is None:
