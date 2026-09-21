@@ -6,7 +6,7 @@ incrementally and keeps the upstream Electrum sources available through the
 
 ## Current milestone
 
-`DGB-ELECTRUM-DIGIBYTE-CONSENSUS-HEADERS` — client-side consensus validation in progress.
+`DGB-ELECTRUM-DIGIBYTE-CONSENSUS-HEADERS` — live header synchronization in progress.
 
 Completed so far:
 
@@ -47,10 +47,15 @@ DIGIBYTE_CORE_DIR=/path/to/digibyte-core ./contrib/build_digibyte_pow.sh
 ```
 
 This builds the ignored project-local `.build/libdigibytepow.so`. A C++17/20
-compiler is required. The client now has the multi-algorithm PoW adapter and
-the DigiByte V1--V4 context-aware difficulty path; live header synchronization
-still requires operator validation against the TrueNAS electrs endpoint and
-verified mainnet header vectors.
+compiler is required. The client has a batched multi-algorithm PoW adapter and
+DigiByte V1--V4 context-aware difficulty validation. It is currently
+synchronizing real mainnet headers successfully through nearly height
+2,000,000.
+
+Header validation preserves sparse per-algorithm history, refreshes cached
+context safely, and matches Core's signed arithmetic and V3/V4 timespan
+bounds. Initial synchronization currently validates the full historical chain;
+a trusted checkpoint/header bootstrap is planned to reduce first-launch time.
 
 ## Tests
 
@@ -65,7 +70,7 @@ export LD_LIBRARY_PATH="$PWD/.build/libsecp${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
   tests/test_network.py
 ```
 
-The current baseline is 96 passing tests.
+The current baseline is 112 passing tests and 17 subtests.
 
 ## Local electrs smoke test
 
@@ -111,7 +116,9 @@ Update this section as the client implementation advances:
 - [x] DigiByte multi-algorithm PoW dispatch and V1--V4 difficulty validation path.
 - [x] Batched native PoW verification for faster initial header synchronization.
 - [x] Operator smoke test confirmed verified header synchronization reaching height 80,639.
-- [ ] Full header synchronization and wallet query validation.
+- [x] Operator runtime validation confirmed synchronization progressing toward height 2,000,000.
+- [ ] Complete full header synchronization and wallet query validation.
+- [ ] Trusted checkpoint/header bootstrap for faster first launch.
 - [ ] Packaging updates.
 
 ---
