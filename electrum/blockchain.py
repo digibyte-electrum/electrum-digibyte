@@ -401,7 +401,7 @@ class Blockchain(Logger):
         if constants.net.NET_NAME == 'digibyte':
             from .digibyte_difficulty import next_bits, bits_to_target
             from .digibyte_pow import pow_hash_batch
-            history = [self.read_header(h) for h in range(max(0, start_height - 145), start_height)]
+            history = [self.read_header(h) for h in range(max(0, start_height - CHUNK_SIZE), start_height)]
         else:
             target = self.get_target(index-1)
         headers = []
@@ -429,8 +429,8 @@ class Blockchain(Logger):
             prev_hash = hash_header(header)
             if constants.net.NET_NAME == 'digibyte':
                 history.append(header)
-                if len(history) > 145:
-                    del history[:-145]
+                if len(history) > CHUNK_SIZE:
+                    del history[:-CHUNK_SIZE]
 
     @with_lock
     def path(self) -> Path:
@@ -756,7 +756,7 @@ class Blockchain(Logger):
         try:
             if constants.net.NET_NAME == 'digibyte':
                 from .digibyte_difficulty import next_bits, bits_to_target
-                history = [self.read_header(h) for h in range(max(0, height - 145), height)]
+                history = [self.read_header(h) for h in range(max(0, height - CHUNK_SIZE), height)]
                 target = bits_to_target(next_bits(history, header))
             else:
                 target = self.get_target(height // CHUNK_SIZE - 1)

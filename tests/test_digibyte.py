@@ -164,6 +164,27 @@ def test_digibyte_later_difficulty_era_contexts():
         assert 0 < bits < (1 << 32)
 
 
+def test_digibyte_v2_sparse_algorithm_history():
+    headers = []
+    for height in range(143136, 145174):
+        # Model the sparse early-mainnet Scrypt schedule observed in Core
+        # headers around the MultiAlgo transition.
+        version = 1 if height % 20 == 19 else 0x0201
+        headers.append({
+            'block_height': height,
+            'version': version,
+            'timestamp': 1_409_590_000 + height * 15,
+            'bits': 0x1c01c521,
+        })
+    bits = next_bits(headers, {
+        'block_height': 145174,
+        'version': 1,
+        'timestamp': 1_411_005_000,
+        'bits': 0,
+    })
+    assert bits != target_to_bits(POW_LIMIT)
+
+
 def test_create_and_restore_standard_wallet():
     async def run_test():
         constants.DigiByteMainnet.set_as_network()
