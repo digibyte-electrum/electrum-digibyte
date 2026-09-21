@@ -74,6 +74,11 @@ def _height(header: dict, fallback: int) -> int:
     return header.get("block_height", fallback)
 
 
+def _div_trunc_zero(value: int, divisor: int) -> int:
+    """Match C++ integer division for signed values."""
+    return value // divisor if value >= 0 else -((-value) // divisor)
+
+
 def _same_algo(headers: Sequence[dict], before: int, algo: int):
     for i in range(before, -1, -1):
         if algorithm(headers[i]["version"], _height(headers[i], i)) == algo:
@@ -134,7 +139,7 @@ def next_bits(headers: Sequence[dict], candidate: dict) -> int:
             return target_to_bits(POW_LIMIT)
         first_index = first_height - _height(headers[0], 0)
         timespan = _median_time(headers, len(headers) - 1) - _median_time(headers, first_index)
-        timespan = AVERAGING_TARGET + (timespan - AVERAGING_TARGET) // 6
+        timespan = AVERAGING_TARGET + _div_trunc_zero(timespan - AVERAGING_TARGET, 6)
         timespan = max(MIN_TIMESPAN_V3, min(MAX_TIMESPAN_V3, timespan))
         target = bits_to_target(headers[previous_algo]["bits"]) * timespan // AVERAGING_TARGET
         adjustments = _height(headers[previous_algo], previous_algo) - (height - 1) + NUM_ALGOS - 1
@@ -147,7 +152,7 @@ def next_bits(headers: Sequence[dict], candidate: dict) -> int:
         return target_to_bits(POW_LIMIT)
     first_index = first_height - _height(headers[0], 0)
     timespan = _median_time(headers, len(headers) - 1) - _median_time(headers, first_index)
-    timespan = AVERAGING_TARGET_V4 + (timespan - AVERAGING_TARGET_V4) // 4
+    timespan = AVERAGING_TARGET_V4 + _div_trunc_zero(timespan - AVERAGING_TARGET_V4, 4)
     timespan = max(MIN_TIMESPAN_V4, min(MAX_TIMESPAN_V4, timespan))
     target = bits_to_target(headers[previous_algo]["bits"]) * timespan // AVERAGING_TARGET_V4
     adjustments = _height(headers[previous_algo], previous_algo) + NUM_ALGOS - 1 - (height - 1)
