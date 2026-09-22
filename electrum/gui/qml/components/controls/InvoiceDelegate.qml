@@ -41,12 +41,12 @@ ItemDelegate {
             Layout.preferredHeight: constants.iconSizeLarge
             source: model.is_lightning
                 ? "../../../icons/lightning.png"
-                : "../../../icons/bitcoin.png"
+                : "../../../icons/digibyte.png"
 
             Image {
                 visible: model.onchain_fallback
                 z: -1
-                source: "../../../icons/bitcoin.png"
+                source: "../../../icons/digibyte.png"
                 anchors {
                     right: parent.right
                     bottom: parent.bottom

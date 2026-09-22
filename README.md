@@ -20,6 +20,20 @@ Completed so far:
 - The existing Qt GUI launches with DigiByte selected and uses the DigiByte
   data directory.
 
+## DigiByte visual branding
+
+The wallet uses the official DigiByte symbol icon for on-chain coin indicators.
+The Electrum application, QR-code center mark, and wizard imagery retain their
+original Electrum artwork. The DigiByte asset
+is copied from the official [DigiByte Core logo repository](https://github.com/DigiByte-Core/digibyte-logos),
+specifically `Symbol Icons/512x512.png`. That repository documents the
+DigiByte palette, recommends using its supplied artwork without distortion,
+and distributes the collection under the MIT License.
+
+Only visible artwork is branded. Internal Electrum module names, Bitcoin
+script/address implementation names, and URI/protocol identifiers remain
+unchanged where they are required for compatibility.
+
 ## Runtime and system dependencies
 
 The client requires Python 3.10 or newer and the Python packages in the
