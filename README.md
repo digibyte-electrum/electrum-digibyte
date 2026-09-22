@@ -90,6 +90,58 @@ DigiByte V1--V4 context-aware difficulty validation. It is currently
 synchronizing real mainnet headers beyond height 10,000,000 during operator
 testing.
 
+## Upgrading from upstream Electrum
+
+The `upstream` remote points to the official Electrum repository, while
+`origin` points to this DigiByte fork. The `digi` branch contains the DigiByte
+implementation and should be updated through a dedicated upgrade branch.
+
+Before starting an upgrade, make sure the working tree is clean and record the
+current test result:
+
+```bash
+git switch digi
+git status
+git fetch upstream --tags
+```
+
+For an upstream release tag, create an upgrade branch and merge the release:
+
+```bash
+git switch -c upgrade/electrum-X.Y.Z digi
+git merge --no-ff X.Y.Z
+```
+
+For development work before a release, merge `upstream/master` instead:
+
+```bash
+git switch -c upgrade/electrum-master digi
+git merge --no-ff upstream/master
+```
+
+Resolve conflicts by preserving the upstream behavior first, then reapplying
+the DigiByte-specific network parameters, difficulty/PoW validation,
+checkpoint handling, data directory, GUI branding, and test changes. Do not
+rebase the published `digi` branch; the merge commit keeps the upstream and
+DigiByte histories auditable.
+
+After resolving conflicts, run the focused DigiByte tests and the relevant
+upstream tests, inspect the difference from upstream, and perform a GUI smoke
+test. When the upgrade is validated, merge it into `digi` and push both the
+upgrade branch and `digi`:
+
+```bash
+git diff upstream/master...HEAD
+export LD_LIBRARY_PATH="$PWD/.build/libsecp${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+.venv/bin/pytest -q tests/test_simple_config.py tests/test_digibyte.py tests/test_network.py
+git switch digi
+git merge --no-ff upgrade/electrum-X.Y.Z
+git push origin upgrade/electrum-X.Y.Z digi
+```
+
+Each upgrade must re-check the official DigiByte Core checkpoint source and
+verify the embedded checkpoint header before release.
+
 Header validation preserves sparse per-algorithm history, refreshes cached
 context safely, and matches Core's signed arithmetic and V3/V4 timespan
 bounds. DigiByte mainnet uses the latest checkpoint published by the official
