@@ -26,6 +26,10 @@ def test_digibyte_mainnet_parameters():
     assert net.SEGWIT_HRP == "dgb"
     assert net.BIP44_COIN_TYPE == 20
     assert net.DEFAULT_PORTS == {"t": "50011", "s": "50012"}
+    assert net.max_checkpoint() == net.BOOTSTRAP_CHECKPOINT_HEIGHT
+    checkpoint = deserialize_header(bytes.fromhex(net.BOOTSTRAP_CHECKPOINT_HEADER),
+                                    net.BOOTSTRAP_CHECKPOINT_HEIGHT)
+    assert hash_header(checkpoint) == net.BOOTSTRAP_CHECKPOINT_HASH
 
 
 def test_posix_user_dir_is_digibyte_specific(monkeypatch):

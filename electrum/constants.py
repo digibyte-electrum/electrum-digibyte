@@ -84,7 +84,8 @@ class AbstractNet:
 
     @classmethod
     def max_checkpoint(cls) -> int:
-        return max(0, len(cls.CHECKPOINTS) * 2016 - 1)
+        bootstrap_height = getattr(cls, 'BOOTSTRAP_CHECKPOINT_HEIGHT', -1)
+        return max(0, len(cls.CHECKPOINTS) * 2016 - 1, bootstrap_height)
 
     @classmethod
     def rev_genesis_bytes(cls) -> bytes:
@@ -196,6 +197,15 @@ class DigiByteMainnet(AbstractNet):
     BOLT11_HRP = SEGWIT_HRP
     GENESIS = "7497ea1b465eb39f1c8f507bc877078fe016d6fcb6dfad3a64c98dcc6e1e8496"
     DEFAULT_PORTS = {'t': '50011', 's': '50012'}
+
+    # DigiByte-only bootstrap anchor obtained from the fully validated chain.
+    BOOTSTRAP_CHECKPOINT_HEIGHT = 10_059_839
+    BOOTSTRAP_CHECKPOINT_HASH = '0bf6c611737bfb400176c2064d17f52aed0b1cfa5ded7ec1de8fd423b090d8c8'
+    BOOTSTRAP_CHECKPOINT_HEADER = (
+        '02060020613e8bab435f9736818e2d874a3811b9e0bd806c5a493e30acd546ec'
+        '8d72bddd57cc296805fb7452827f9ce2f7c2cbfa16c5c17eeb0a51afcbe646c'
+        '8f16219c852690d5e94ae031ad767b924'
+    )
 
     XPRV_HEADERS = {
         'standard':    0x0488ade4,  # xprv

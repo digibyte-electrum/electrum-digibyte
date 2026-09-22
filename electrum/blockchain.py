@@ -197,7 +197,10 @@ class BlockchainManager(Logger):
     def _init_headers_file_for_best_chain(self):
         b = self.get_best_chain()
         filename = b.path()
-        length = HEADER_SIZE * len(constants.net.CHECKPOINTS) * CHUNK_SIZE
+        if hasattr(constants.net, 'BOOTSTRAP_CHECKPOINT_HEIGHT'):
+            length = HEADER_SIZE * (constants.net.max_checkpoint() + 1)
+        else:
+            length = HEADER_SIZE * len(constants.net.CHECKPOINTS) * CHUNK_SIZE
         if not filename.exists() or filename.stat().st_size < length:
             with open(filename, 'wb') as f:
                 if length > 0:
@@ -423,7 +426,10 @@ class Blockchain(Logger):
                 # The genesis header has no predecessor from which to derive
                 # difficulty; its hash and compact bits are fixed by the
                 # network parameters and are checked below.
-                target = (bits_to_target(header['bits']) if height == 0
+                bootstrap_warmup = (
+                    constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT < height <=
+                    constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT + 145)
+                target = (bits_to_target(header['bits']) if height == 0 or bootstrap_warmup
                           else bits_to_target(next_bits(history, header)))
             self.verify_header(header, prev_hash, target, expected_header_hash,
                                pow_hash_value=pow_hashes[i])
@@ -574,6 +580,9 @@ class Blockchain(Logger):
             return self.parent.read_header(height)
         if height > self.height():
             return
+        if (self.parent is None and constants.net.NET_NAME == 'digibyte'
+                and height == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT):
+            return deserialize_header(bytes.fromhex(constants.net.BOOTSTRAP_CHECKPOINT_HEADER), height)
         delta = height - self.forkpoint
         name = self.path()
         self.assert_headers_file_available(name)
@@ -615,6 +624,9 @@ class Blockchain(Logger):
             return '0000000000000000000000000000000000000000000000000000000000000000'
         elif height == 0:
             return constants.net.GENESIS
+        elif (constants.net.NET_NAME == 'digibyte'
+              and height == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT):
+            return constants.net.BOOTSTRAP_CHECKPOINT_HASH
         elif is_height_checkpoint():
             index = height // CHUNK_SIZE
             h, t = self.checkpoints[index]
@@ -758,7 +770,11 @@ class Blockchain(Logger):
             if constants.net.NET_NAME == 'digibyte':
                 from .digibyte_difficulty import next_bits, bits_to_target
                 history = self._get_digibyte_context(height)
-                target = bits_to_target(next_bits(history, header))
+                bootstrap_warmup = (
+                    constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT < height <=
+                    constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT + 145)
+                target = (bits_to_target(header['bits']) if bootstrap_warmup
+                          else bits_to_target(next_bits(history, header)))
             else:
                 target = self.get_target(height // CHUNK_SIZE - 1)
         except (MissingHeader, ValueError):
@@ -807,7 +823,11 @@ class Blockchain(Logger):
         cached_end = (self._digibyte_context[-1]['block_height'] + 1
                       if self._digibyte_context else 0)
         if self._digibyte_context is None or cached_end < available_end:
-            headers = self._read_digibyte_headers(0, start_height)
+            if (start_height == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT + 1
+                    and self.height() == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT):
+                headers = [self.read_header(constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT)]
+            else:
+                headers = self._read_digibyte_headers(0, start_height)
             self._digibyte_context = self._compress_digibyte_context(headers)
         # A previous connection check may have populated the cache beyond the
         # chunk currently being verified.  Difficulty history must contain

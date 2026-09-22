@@ -27,6 +27,7 @@ MAX_TIMESPAN_V4 = 870
 # DigiByte Core's mainnet initialTarget[ALGO_ODO] is (~0 >> 40), used for
 # the first OdoCrypt block at the activation height.
 ODO_INITIAL_TARGET = ((1 << 256) - 1) >> 40
+BOOTSTRAP_WARMUP_HEADERS = 145
 
 
 def bits_to_target(bits: int) -> int:

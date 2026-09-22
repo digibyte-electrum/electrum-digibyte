@@ -49,13 +49,16 @@ DIGIBYTE_CORE_DIR=/path/to/digibyte-core ./contrib/build_digibyte_pow.sh
 This builds the ignored project-local `.build/libdigibytepow.so`. A C++17/20
 compiler is required. The client has a batched multi-algorithm PoW adapter and
 DigiByte V1--V4 context-aware difficulty validation. It is currently
-synchronizing real mainnet headers successfully through nearly height
-2,000,000.
+synchronizing real mainnet headers beyond height 10,000,000 during operator
+testing.
 
 Header validation preserves sparse per-algorithm history, refreshes cached
 context safely, and matches Core's signed arithmetic and V3/V4 timespan
-bounds. Initial synchronization currently validates the full historical chain;
-a trusted checkpoint/header bootstrap is planned to reduce first-launch time.
+bounds. DigiByte mainnet now includes a pinned bootstrap checkpoint beyond
+height 10,000,000. Headers after that checkpoint retain PoW validation; the
+first 145 headers warm the difficulty context before exact V4 validation
+resumes. The checkpoint must be independently verified against DigiByte Core
+before release.
 
 ## Tests
 
@@ -118,7 +121,7 @@ Update this section as the client implementation advances:
 - [x] Operator smoke test confirmed verified header synchronization reaching height 80,639.
 - [x] Operator runtime validation confirmed synchronization progressing toward height 2,000,000.
 - [ ] Complete full header synchronization and wallet query validation.
-- [ ] Trusted checkpoint/header bootstrap for faster first launch.
+- [x] Trusted checkpoint/header bootstrap for faster first launch (operator checkpoint pending independent Core verification).
 - [ ] Packaging updates.
 
 ---
