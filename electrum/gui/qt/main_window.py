@@ -1053,12 +1053,18 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
 
         elif self.network.is_connected():
             server_height = self.network.get_server_height()
-            server_lag = self.network.get_local_height() - server_height
+            local_height = self.network.get_local_height()
+            server_lag = local_height - server_height
             fork_str = "_fork" if len(self.network.get_blockchains())>1 else ""
             # Server height can be 0 after switching to a new server
             # until we get a headers subscription request response.
-            # Display the synchronizing message in that case.
-            if not self.wallet.is_up_to_date() or server_height == 0:
+            # Display the synchronizing message while either wallet history
+            # or the local header chain is still catching up.
+            headers_syncing = server_height > 0 and local_height < server_height
+            if headers_syncing:
+                network_text = _("Synchronizing headers...")
+                icon = read_QIcon("status_waiting.png")
+            elif not self.wallet.is_up_to_date() or server_height == 0:
                 num_sent, num_answered = self.wallet.adb.get_history_sync_state_details()
                 network_text = ("{} ({}/{})"
                                 .format(_("Synchronizing..."), num_answered, num_sent))
