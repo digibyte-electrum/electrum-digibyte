@@ -140,6 +140,31 @@ def test_digibyte_odo_activation_pow_vector():
     )
 
 
+def test_digibyte_v4_median_uses_absolute_heights_in_compressed_context():
+    old = [{
+        'block_height': height,
+        'version': 0x20000e02,
+        'timestamp': 1_563_000_000 + height,
+        'bits': 0x1c00ffff,
+    } for height in range(9_110_000, 9_110_010)]
+    recent = [{
+        'block_height': height,
+        'version': 0x0200 + ((height % 5) << 8),
+        'timestamp': 1_563_700_000 + height,
+        'bits': 0x1c00ffff,
+    } for height in range(9_114_191, 9_114_336)]
+
+    # Sparse historical entries precede the contiguous recent window, as in
+    # Blockchain's compressed runtime context.
+    bits = next_bits(old + recent, {
+        'block_height': 9_114_336,
+        'version': 0x0200,
+        'timestamp': 1_563_700_145,
+        'bits': 0,
+    })
+    assert 0 < bits < (1 << 32)
+
+
 def test_digibyte_core_v1_boundary_header_vectors():
     raw_headers = {
         144998: '02000000acd70250d387c7464b409996670b2f56d8ae13c3adf081b1278404b09c463ed9800cc86cad289753e3a544ee7316ec035b429c0212acdfc8b5e1b01ff14056dc82bb04547af7011c2984bc79',

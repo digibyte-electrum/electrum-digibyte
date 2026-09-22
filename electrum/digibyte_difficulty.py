@@ -71,8 +71,18 @@ def algorithm(version: int, height: int) -> int:
     }.get((version >> 8) & 0x0f, -1)
 
 
-def _median_time(headers: Sequence[dict], end: int) -> int:
-    return sorted(h["timestamp"] for h in headers[max(0, end - 10):end + 1])[len(headers[max(0, end - 10):end + 1]) // 2]
+def _median_time(headers: Sequence[dict], end_height: int) -> int:
+    # The cached context contains a contiguous recent window plus sparse
+    # per-algorithm history.  Select by absolute height rather than list
+    # index, as the latter is not meaningful after context compression.
+    if headers and "block_height" in headers[0]:
+        window = [h for h in headers
+                  if end_height - 10 <= h["block_height"] <= end_height]
+    else:
+        window = headers[max(0, end_height - 10):end_height + 1]
+    if not window:
+        raise ValueError("DigiByte difficulty context is incomplete")
+    return sorted(h["timestamp"] for h in window)[len(window) // 2]
 
 
 def _height(header: dict, fallback: int) -> int:
@@ -150,8 +160,7 @@ def next_bits(headers: Sequence[dict], candidate: dict) -> int:
         first_height = height - 1 - NUM_ALGOS * AVERAGING_INTERVAL
         if first_height < 0:
             return target_to_bits(POW_LIMIT)
-        first_index = first_height - _height(headers[0], 0)
-        timespan = _median_time(headers, len(headers) - 1) - _median_time(headers, first_index)
+        timespan = _median_time(headers, height - 1) - _median_time(headers, first_height)
         timespan = AVERAGING_TARGET + _div_trunc_zero(timespan - AVERAGING_TARGET, 6)
         timespan = max(MIN_TIMESPAN_V3, min(MAX_TIMESPAN_V3, timespan))
         target = bits_to_target(headers[previous_algo]["bits"]) * timespan // AVERAGING_TARGET
@@ -163,8 +172,7 @@ def next_bits(headers: Sequence[dict], candidate: dict) -> int:
     first_height = height - 1 - NUM_ALGOS * AVERAGING_INTERVAL
     if first_height < 0:
         return target_to_bits(POW_LIMIT)
-    first_index = first_height - _height(headers[0], 0)
-    timespan = _median_time(headers, len(headers) - 1) - _median_time(headers, first_index)
+    timespan = _median_time(headers, height - 1) - _median_time(headers, first_height)
     timespan = AVERAGING_TARGET_V4 + _div_trunc_zero(timespan - AVERAGING_TARGET_V4, 4)
     timespan = max(MIN_TIMESPAN_V4, min(MAX_TIMESPAN_V4, timespan))
     target = bits_to_target(headers[previous_algo]["bits"]) * timespan // AVERAGING_TARGET_V4
