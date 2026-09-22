@@ -92,11 +92,12 @@ testing.
 
 Header validation preserves sparse per-algorithm history, refreshes cached
 context safely, and matches Core's signed arithmetic and V3/V4 timespan
-bounds. DigiByte mainnet now includes a pinned bootstrap checkpoint beyond
-height 10,000,000. Headers after that checkpoint retain PoW validation; the
-first 145 headers warm the difficulty context before exact V4 validation
-resumes. The checkpoint must be independently verified against DigiByte Core
-before release.
+bounds. DigiByte mainnet uses the latest checkpoint published by the official
+DigiByte Core organization, at height 23,500,000. Headers after that
+checkpoint retain PoW validation; the first 145 headers warm the difficulty
+context before exact V4 validation resumes. The checkpoint source and complete
+80-byte header must be independently checked against DigiByte Core before any
+release changes these values.
 
 ## Tests
 

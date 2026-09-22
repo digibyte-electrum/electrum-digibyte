@@ -201,7 +201,11 @@ class BlockchainManager(Logger):
             length = HEADER_SIZE * (constants.net.max_checkpoint() + 1)
         else:
             length = HEADER_SIZE * len(constants.net.CHECKPOINTS) * CHUNK_SIZE
-        if not filename.exists() or filename.stat().st_size < length:
+        # Do not extend an existing partially synchronized file when the
+        # bundled checkpoint moves forward.  Extending it would make zeroed
+        # headers look like valid history and discard the real sync boundary.
+        existing_size = filename.stat().st_size if filename.exists() else 0
+        if not filename.exists() or existing_size == 0:
             with open(filename, 'wb') as f:
                 if length > 0:
                     f.seek(length - 1)
@@ -625,7 +629,8 @@ class Blockchain(Logger):
         elif height == 0:
             return constants.net.GENESIS
         elif (constants.net.NET_NAME == 'digibyte'
-              and height == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT):
+              and height == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT
+              and height <= self.height()):
             return constants.net.BOOTSTRAP_CHECKPOINT_HASH
         elif is_height_checkpoint():
             index = height // CHUNK_SIZE

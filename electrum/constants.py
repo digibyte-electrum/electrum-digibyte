@@ -202,13 +202,31 @@ class DigiByteMainnet(AbstractNet):
     GENESIS = "7497ea1b465eb39f1c8f507bc877078fe016d6fcb6dfad3a64c98dcc6e1e8496"
     DEFAULT_PORTS = {'t': '50011', 's': '50012'}
 
-    # DigiByte-only bootstrap anchor obtained from the fully validated chain.
-    BOOTSTRAP_CHECKPOINT_HEIGHT = 10_059_839
-    BOOTSTRAP_CHECKPOINT_HASH = '0bf6c611737bfb400176c2064d17f52aed0b1cfa5ded7ec1de8fd423b090d8c8'
+    # DigiByte Core publishes these mainnet checkpoints in its official
+    # chainparams.cpp.  Verify this source and the complete bootstrap header
+    # before changing these values in a release.
+    OFFICIAL_CHECKPOINT_SOURCE = (
+        'https://github.com/DigiByte-Core/digibyte/blob/develop/'
+        'src/kernel/chainparams.cpp'
+    )
+    OFFICIAL_CHECKPOINTS = (
+        (11_000_000, '0f4ad10ae49b504246c0175f6cbab9b0f91b6568a88931e6341a83a731701054'),
+        (12_500_000, '697a015b62140c9549fbc8d8b3c1d027626b2f94d337db32115e429fbf233ed7'),
+        (14_000_000, 'a33861c857eed46191cf6cdaf81693e0dfcd00b3a11133821b0c73fe1d7769d9'),
+        (15_500_000, '000000000000000439d5c66b2fb3ec50f50a68b65f5790d338150b63488de645'),
+        (17_000_000, 'f167688cc0102743b135499ed9f9eff9c5bad096203150e438be0a6e783d5587'),
+        (18_500_000, '745dc7b89208de482071a3a8d13eb5596d55bedc4f5ba2fa74cbea9ecf91169e'),
+        (20_000_000, 'f530a66ba6fe93e647f7d88a9b3f22bfe8c2c2ab1ec1b0286286f86b82d6a10f'),
+        (21_000_000, '0000000000000001cb40d3be76bf601d98555a069669d963060d633ea3a140e8'),
+        (21_700_000, '457f6864b52e5076a433afe3c28e3ae0bbeeaba9036a782ddb691242326fcb80'),
+        (23_500_000, 'ade47d5ccbb92cb1d965b97a187bdbf65bf74be6a3709cb6a01339f8c2856deb'),
+    )
+    BOOTSTRAP_CHECKPOINT_HEIGHT = OFFICIAL_CHECKPOINTS[-1][0]
+    BOOTSTRAP_CHECKPOINT_HASH = OFFICIAL_CHECKPOINTS[-1][1]
     BOOTSTRAP_CHECKPOINT_HEADER = (
-        '02060020613e8bab435f9736818e2d874a3811b9e0bd806c5a493e30acd546ec'
-        '8d72bddd57cc296805fb7452827f9ce2f7c2cbfa16c5c17eeb0a51afcbe646c'
-        '8f16219c852690d5e94ae031ad767b924'
+        '02080020aed80457c007da3493de6d8d0f524d809909b29ba55217a503000000'
+        '000000001af0e12cfd6021e4d509aa109ae8990d044eb3f1b3cbb756135687a4'
+        '60d0477e74f7076a57870e1ad2afbc41'
     )
 
     XPRV_HEADERS = {

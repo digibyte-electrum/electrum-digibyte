@@ -27,6 +27,10 @@ def test_digibyte_mainnet_parameters():
     assert net.BIP44_COIN_TYPE == 20
     assert net.DEFAULT_PORTS == {"t": "50011", "s": "50012"}
     assert net.max_checkpoint() == net.BOOTSTRAP_CHECKPOINT_HEIGHT
+    assert net.OFFICIAL_CHECKPOINT_SOURCE.endswith('src/kernel/chainparams.cpp')
+    assert net.OFFICIAL_CHECKPOINTS[-1] == (
+        23_500_000,
+        'ade47d5ccbb92cb1d965b97a187bdbf65bf74be6a3709cb6a01339f8c2856deb')
     checkpoint = deserialize_header(bytes.fromhex(net.BOOTSTRAP_CHECKPOINT_HEADER),
                                     net.BOOTSTRAP_CHECKPOINT_HEIGHT)
     assert hash_header(checkpoint) == net.BOOTSTRAP_CHECKPOINT_HASH
