@@ -989,6 +989,13 @@ class Interface(Logger):
                 or height == 0 == constants.net.max_checkpoint()):
             raise Exception(f"{height=} must be > cp={constants.net.max_checkpoint()}")
         assert height <= tip, f"{height=} must be <= {tip=}"
+        # A DigiByte bootstrap checkpoint need not be aligned to Electrum's
+        # 2016-header chunks.  Do not request the containing chunk before the
+        # checkpoint: those preceding headers are intentionally not present.
+        # Let sync_until() advance this short boundary segment one header at a
+        # time, then resume normal chunked fast-forwarding at the next boundary.
+        if height % CHUNK_SIZE:
+            return 0
         # Request a few chunks of headers concurrently.
         # tradeoffs:
         # - more chunks: higher memory requirements
