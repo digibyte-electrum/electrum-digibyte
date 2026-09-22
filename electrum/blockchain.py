@@ -823,9 +823,12 @@ class Blockchain(Logger):
         cached_end = (self._digibyte_context[-1]['block_height'] + 1
                       if self._digibyte_context else 0)
         if self._digibyte_context is None or cached_end < available_end:
-            if (start_height == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT + 1
-                    and self.height() == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT):
-                headers = [self.read_header(constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT)]
+            if start_height == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT + 1:
+                if self.height() == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT:
+                    headers = [self.read_header(constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT)]
+                else:
+                    context_start = max(0, start_height - 145)
+                    headers = self._read_digibyte_headers(context_start, start_height)
             else:
                 headers = self._read_digibyte_headers(0, start_height)
             self._digibyte_context = self._compress_digibyte_context(headers)
