@@ -73,7 +73,7 @@ class SendTab(QWidget, MessageBoxMixin, Logger):
         msg = (_("Recipient of the funds.")
                + "\n\n"
                + _("This field can contain:") + "\n"
-               + _("- a Bitcoin address or BIP21 URI") + "\n"
+               + _("- a DigiByte address or BIP21 URI") + "\n"
                + _("- a Lightning invoice") + "\n"
                + _("- a label from your list of contacts") + "\n"
                + _("- an openalias") + "\n"

@@ -65,6 +65,8 @@ BIP39_WALLET_FORMATS = read_json('bip39_wallet_formats.json')
 class AbstractNet:
 
     NET_NAME: str
+    COIN_NAME: str = "Bitcoin"
+    COIN_TICKER: str = "BTC"
     TESTNET: bool
     WIF_PREFIX: int
     ADDRTYPE_P2PKH: int
@@ -189,6 +191,8 @@ class BitcoinMainnet(AbstractNet):
 class DigiByteMainnet(AbstractNet):
 
     NET_NAME = "digibyte"
+    COIN_NAME = "DigiByte"
+    COIN_TICKER = "DGB"
     TESTNET = False
     WIF_PREFIX = 0x80
     ADDRTYPE_P2PKH = 30

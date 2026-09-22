@@ -159,9 +159,12 @@ class SettingsDialog(QDialog, QtEventListener):
         msat_cb.stateChanged.connect(on_msat_checked)
 
         # units
-        units = base_units_list
+        units = (['DGB', 'mDGB', 'bits', 'sat']
+                 if constants.net.NET_NAME == 'digibyte' else base_units_list)
+        ticker = constants.net.COIN_TICKER
+        milli = 'm' + ticker
         msg = (_('Base unit of your wallet.')
-               + '\n1 BTC = 1000 mBTC. 1 mBTC = 1000 bits. 1 bit = 100 sat.\n'
+               + f'\n1 {ticker} = 1000 {milli}. 1 {milli} = 1000 bits. 1 bit = 100 sat.\n'
                + _('This setting affects the Send tab, and all balance related fields.'))
         unit_label = HelpLabel(_('Base unit') + ':', msg)
         unit_combo = QComboBox()

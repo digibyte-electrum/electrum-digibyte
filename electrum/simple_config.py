@@ -549,7 +549,10 @@ class SimpleConfig(Logger):
         return decimal_point_to_base_unit_name(self.BTC_AMOUNTS_DECIMAL_POINT)
 
     def set_base_unit(self, unit):
-        assert unit in base_units.keys()
+        if constants.net.NET_NAME == 'digibyte':
+            assert unit in ('DGB', 'mDGB', 'bits', 'sat')
+        else:
+            assert unit in base_units.keys()
         self.BTC_AMOUNTS_DECIMAL_POINT = base_unit_name_to_decimal_point(unit)
 
     def get_nostr_relays(self) -> Sequence[str]:

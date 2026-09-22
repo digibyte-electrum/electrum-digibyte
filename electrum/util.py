@@ -108,7 +108,11 @@ class UnknownBaseUnit(Exception): pass
 
 
 def decimal_point_to_base_unit_name(dp: int) -> str:
-    # e.g. 8 -> "BTC"
+    # Keep internal decimal-point handling shared with upstream while using
+    # DigiByte-facing unit labels in the DigiByte client.
+    from . import constants
+    if constants.net.NET_NAME == 'digibyte':
+        return {8: 'DGB', 5: 'mDGB', 2: 'bits', 0: 'sat'}[dp]
     try:
         return base_units_inverse[dp]
     except KeyError:
@@ -121,6 +125,8 @@ def base_unit_name_to_decimal_point(unit_name: str) -> int:
     try:
         return base_units[unit_name]
     except KeyError:
+        if unit_name in ('DGB', 'mDGB'):
+            return {'DGB': 8, 'mDGB': 5}[unit_name]
         raise UnknownBaseUnit(unit_name) from None
 
 def parse_max_spend(amt: Any) -> Optional[int]:
