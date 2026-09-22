@@ -20,6 +20,44 @@ Completed so far:
 - The existing Qt GUI launches with DigiByte selected and uses the DigiByte
   data directory.
 
+## Runtime and system dependencies
+
+The client requires Python 3.10 or newer and the Python packages in the
+upstream requirements together with the DigiByte development additions:
+
+```bash
+.venv/bin/pip install -r contrib/requirements/requirements.txt
+.venv/bin/pip install -r contrib/requirements/requirements-digibyte-dev.txt
+```
+
+For the Qt desktop GUI, install PyQt6 and the native secp256k1 library/build
+tools. On Ubuntu:
+
+```bash
+sudo apt update
+sudo apt install \
+  python3-venv python3-dev python3-pyqt6 \
+  libsecp256k1-dev automake libtool
+```
+
+The DigiByte header validator also needs the project-local native PoW library.
+Building it requires a C++17-or-newer compiler and a local DigiByte Core source
+checkout:
+
+```bash
+DIGIBYTE_CORE_DIR=/path/to/digibyte-core ./contrib/build_digibyte_pow.sh
+```
+
+QR scanning is optional. To enable the QR scanner on Ubuntu, install its
+runtime library:
+
+```bash
+sudo apt install libzbar0
+```
+
+Without `libzbar0`, the wallet and Preferences still work, but camera/QR
+scanning is unavailable. `libzbar-dev` is not required for normal use.
+
 ## Development setup
 
 The project-local development environment is kept in the ignored `.venv/` and
