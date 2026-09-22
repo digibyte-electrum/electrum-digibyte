@@ -990,12 +990,14 @@ class Interface(Logger):
             raise Exception(f"{height=} must be > cp={constants.net.max_checkpoint()}")
         assert height <= tip, f"{height=} must be <= {tip=}"
         # A DigiByte bootstrap checkpoint need not be aligned to Electrum's
-        # 2016-header chunks.  Do not request the containing chunk before the
-        # checkpoint: those preceding headers are intentionally not present.
-        # Let sync_until() advance this short boundary segment one header at a
-        # time, then resume normal chunked fast-forwarding at the next boundary.
+        # 2016-header chunks.  Request only the available suffix of the
+        # containing chunk; its preceding headers are intentionally absent.
         if height % CHUNK_SIZE:
-            return 0
+            count = min(CHUNK_SIZE - (height % CHUNK_SIZE), tip - height + 1)
+            headers = await self.get_block_headers(start_height=height, count=count)
+            if not self.blockchain.connect_headers(height, data=b"".join(headers)):
+                return 0
+            return count
         # Request a few chunks of headers concurrently.
         # tradeoffs:
         # - more chunks: higher memory requirements

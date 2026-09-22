@@ -403,8 +403,11 @@ class Blockchain(Logger):
             raise InvalidHeader(f"insufficient proof of work: {pow_hash_as_num} vs target {target}")
 
     def verify_chunk(self, index: int, data: bytes) -> None:
+        self.verify_headers(index * CHUNK_SIZE, data)
+
+    def verify_headers(self, start_height: int, data: bytes) -> None:
+        """Verify a contiguous header batch that may start off a chunk boundary."""
         num = len(data) // HEADER_SIZE
-        start_height = index * CHUNK_SIZE
         prev_hash = self.get_hash(start_height - 1)
         if constants.net.NET_NAME == 'digibyte':
             from .digibyte_difficulty import next_bits, bits_to_target
@@ -420,7 +423,7 @@ class Blockchain(Logger):
             except MissingHeader:
                 expected_header_hash = None
             raw_header = data[i*HEADER_SIZE : (i+1)*HEADER_SIZE]
-            header = deserialize_header(raw_header, index*CHUNK_SIZE + i)
+            header = deserialize_header(raw_header, start_height + i)
             headers.append((header, raw_header, expected_header_hash))
         pow_hashes = (pow_hash_batch(b''.join(raw for _, raw, _ in headers))
                       if constants.net.NET_NAME == 'digibyte' else [None] * num)
@@ -852,6 +855,19 @@ class Blockchain(Logger):
             return True
         except BaseException as e:
             self.logger.info(f'verify_chunk idx {idx} failed: {repr(e)}')
+            return False
+
+    def connect_headers(self, start_height: int, data: bytes) -> bool:
+        """Verify and append a batch beginning at an arbitrary height."""
+        try:
+            self.verify_headers(start_height, data)
+            delta = start_height - self.forkpoint
+            assert delta == self.size(), (start_height, self.forkpoint, self.size())
+            self.write(data, delta * HEADER_SIZE, truncate=False, fsync=False)
+            self.swap_with_parent()
+            return True
+        except BaseException as e:
+            self.logger.info(f"header batch at {start_height} failed: {repr(e)}")
             return False
 
     def get_checkpoints(self):
