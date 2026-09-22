@@ -127,6 +127,19 @@ def test_digibyte_batch_pow_matches_scalar_pow():
     ]
 
 
+def test_digibyte_odo_activation_pow_vector():
+    # Core mainnet OdoCrypt activation header at height 9,112,320.
+    raw_header = bytes.fromhex(
+        '020e0020ca8f5c98bc0e0c77cd4dddc76a1a6ac0b9b015a6d5e7cfd40500000000'
+        '000000d6feb064acf05aaf278fd135479d0028b0aecfbac4a722c5c9fecaa260'
+        'e7a673a60a355dffff001cc8acfc25'
+    )
+    assert len(raw_header) == 80
+    assert pow_hash(raw_header, version=0x20000e02, timestamp=1563757222).hex() == (
+        '8fe8946b1339262591dc2a437c29d42edb02c8c902caea06729dcd0000000000'
+    )
+
+
 def test_digibyte_core_v1_boundary_header_vectors():
     raw_headers = {
         144998: '02000000acd70250d387c7464b409996670b2f56d8ae13c3adf081b1278404b09c463ed9800cc86cad289753e3a544ee7316ec035b429c0212acdfc8b5e1b01ff14056dc82bb04547af7011c2984bc79',

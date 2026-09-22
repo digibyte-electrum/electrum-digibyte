@@ -38,7 +38,8 @@ extern "C" int digibyte_pow_hash(const unsigned char *header, uint32_t version,
         result = HashQubit(begin, end);
         break;
     case 14u << 8:
-        result = HashOdo(begin, end, timestamp - timestamp % 60);
+        // Mainnet Core shape-changes OdoCrypt every ten days.
+        result = HashOdo(begin, end, timestamp - timestamp % (10u * 24u * 60u * 60u));
         break;
     default:
         return 1;
