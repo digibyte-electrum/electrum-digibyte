@@ -32,7 +32,7 @@ from PyQt6.QtWidgets import (QComboBox,  QTabWidget, QDialog, QSpinBox,  QCheckB
                              QVBoxLayout, QGridLayout, QLineEdit, QWidget, QHBoxLayout)
 
 from electrum.i18n import _, get_gui_lang_names
-from electrum import util
+from electrum import constants, util
 from electrum.util import base_units_list, event_listener
 
 from electrum.gui.common_qt.util import QtEventListener
