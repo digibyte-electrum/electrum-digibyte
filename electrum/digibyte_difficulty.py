@@ -12,6 +12,7 @@ POW_LIMIT = ((1 << 256) - 1) >> 20
 MULTI_ALGO_HEIGHT = 145_000
 ALWAYS_UPDATE_HEIGHT = 400_000
 V4_HEIGHT = 1_430_000
+ODO_HEIGHT = 9_112_320
 NUM_ALGOS = 5
 AVERAGING_INTERVAL = 10
 AVERAGING_TARGET = 1_500
@@ -23,6 +24,9 @@ MIN_TIMESPAN_V3 = 1_380
 MAX_TIMESPAN_V3 = 1_740
 MIN_TIMESPAN_V4 = 690
 MAX_TIMESPAN_V4 = 870
+# DigiByte Core's mainnet initialTarget[ALGO_ODO] is (~0 >> 40), used for
+# the first OdoCrypt block at the activation height.
+ODO_INITIAL_TARGET = ((1 << 256) - 1) >> 40
 
 
 def bits_to_target(bits: int) -> int:
@@ -105,6 +109,14 @@ def next_bits(headers: Sequence[dict], candidate: dict) -> int:
         return target_to_bits(POW_LIMIT)
     last = headers[-1]
     algo = algorithm(candidate["version"], height)
+
+    # Core's V4 rule returns InitialDifficulty(params, algo) when there is no
+    # previous header for that algorithm.  OdoCrypt has an explicit mainnet
+    # initial target, unlike the other algorithms which fall back to powLimit.
+    if algo == 7 and height >= ODO_HEIGHT:
+        same = list(_same_algo(headers, len(headers) - 1, algo))
+        if not same:
+            return target_to_bits(ODO_INITIAL_TARGET)
 
     if height <= MULTI_ALGO_HEIGHT:
         interval = 1 if height >= 67_200 else 144

@@ -9,7 +9,7 @@ from electrum import util
 from electrum.wallet import Standard_Wallet
 from electrum.wallet_db import WalletDB
 from electrum.network import parse_servers
-from electrum.digibyte_difficulty import POW_LIMIT, algorithm, next_bits, target_to_bits
+from electrum.digibyte_difficulty import ODO_HEIGHT, POW_LIMIT, algorithm, next_bits, target_to_bits
 from electrum.digibyte_pow import pow_hash, pow_hash_batch
 from electrum.blockchain import Blockchain, deserialize_header, hash_header
 
@@ -162,6 +162,24 @@ def test_digibyte_later_difficulty_era_contexts():
             'bits': 0,
         })
         assert 0 < bits < (1 << 32)
+
+
+def test_digibyte_odo_activation_uses_core_initial_target():
+    headers = [{
+        'block_height': height,
+        'version': 0x0200 + ((height % 5) << 8),
+        'timestamp': 1_562_000_000 + height * 60,
+        'bits': 0x1c00ffff,
+    } for height in range(ODO_HEIGHT - 145, ODO_HEIGHT)]
+    candidate = {
+        'block_height': ODO_HEIGHT,
+        'version': 0x20000e02,
+        'timestamp': 1_563_757_222,
+        'bits': 0,
+    }
+
+    assert algorithm(candidate['version'], candidate['block_height']) == 7
+    assert next_bits(headers, candidate) == 0x1c00ffff
 
 
 def test_digibyte_v2_sparse_algorithm_history():
