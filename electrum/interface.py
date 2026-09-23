@@ -967,7 +967,7 @@ class Interface(Logger):
             headers = await self.get_block_headers(start_height=index * CHUNK_SIZE, count=CHUNK_SIZE)
         finally:
             self._requested_chunks.discard(index)
-        conn = self.blockchain.connect_chunk(index, data=b"".join(headers))
+        conn = await self._verify_and_connect_chunk(index, data=b"".join(headers))
         if not conn:
             raise RequestCorrupted(f"chunk ({index=}, for {height=}) does not connect to blockchain")
         return None
@@ -995,7 +995,7 @@ class Interface(Logger):
         if height % CHUNK_SIZE:
             count = min(CHUNK_SIZE - (height % CHUNK_SIZE), tip - height + 1)
             headers = await self.get_block_headers(start_height=height, count=count)
-            if not self.blockchain.connect_headers(height, data=b"".join(headers)):
+            if not await self._verify_and_connect_headers(height, data=b"".join(headers)):
                 return 0
             return count
         # Request a few chunks of headers concurrently.
@@ -1018,13 +1018,38 @@ class Interface(Logger):
         num_headers = 0
         for index, task in tasks:
             headers = task.result()
-            conn = self.blockchain.connect_chunk(index, data=b"".join(headers))
+            conn = await self._verify_and_connect_chunk(index, data=b"".join(headers))
             if not conn:
                 break
             num_headers += len(headers)
         # We started at a chunk boundary, instead of requested `height`. Need to correct for that.
         offset = height - index0 * CHUNK_SIZE
         return max(0, num_headers - offset)
+
+    async def _verify_and_connect_chunk(self, index: int, *, data: bytes) -> bool:
+        """Verify a header chunk without blocking the daemon event loop."""
+        try:
+            await asyncio.to_thread(self.blockchain.verify_chunk, index, data)
+            self.blockchain.save_chunk(index, data)
+            return True
+        except BaseException as e:
+            self.logger.info(f'verify_chunk idx {index} failed: {e!r}')
+            return False
+
+    async def _verify_and_connect_headers(self, start_height: int, *, data: bytes) -> bool:
+        """Verify an unaligned header batch without blocking the daemon."""
+        try:
+            await asyncio.to_thread(self.blockchain.verify_headers, start_height, data)
+            delta = start_height - self.blockchain.forkpoint
+            assert delta == self.blockchain.size(), (
+                start_height, self.blockchain.forkpoint, self.blockchain.size())
+            self.blockchain.write(data, delta * blockchain.HEADER_SIZE,
+                                  truncate=False, fsync=False)
+            self.blockchain.swap_with_parent()
+            return True
+        except BaseException as e:
+            self.logger.info(f'header batch at {start_height} failed: {e!r}')
+            return False
 
     def is_main_server(self) -> bool:
         return (self.network.interface == self or
