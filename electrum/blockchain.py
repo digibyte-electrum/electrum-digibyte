@@ -118,6 +118,9 @@ class BlockchainManager(Logger):
         # the chain at some key is the best chain that includes the given hash
         self.blockchains = {}  # type: Dict[str, Blockchain]
         self.blockchains_lock = threading.RLock()  # lock order: take this last; so after Blockchain.lock
+        # DigiByte proof-of-work checks are CPU-heavy.  Interface callers run
+        # them in worker threads, so serialize validation across interfaces.
+        self.can_connect_lock = threading.RLock()
 
         self._read_blockchains()
         self._init_headers_file_for_best_chain()
@@ -232,11 +235,12 @@ class BlockchainManager(Logger):
         """Returns the Blockchain that has a tip that directly links up
         with header, or None.
         """
-        with self.blockchains_lock:
-            chains = list(self.blockchains.values())
-        for b in chains:
-            if b.can_connect(header):
-                return b
+        with self.can_connect_lock:
+            with self.blockchains_lock:
+                chains = list(self.blockchains.values())
+            for b in chains:
+                if b.can_connect(header):
+                    return b
         return None
 
     def get_chains_that_contain_header(self, height: int, header_hash: str) -> Sequence['Blockchain']:

@@ -1283,12 +1283,12 @@ class Interface(Logger):
             # this situation resolves itself on the next block
             return ChainResolutionMode.CATCHUP, height+1
 
-        can_connect = self.bc_mgr.can_connect(header)
+        can_connect = await self._can_connect(header)
         if not can_connect:
             self.logger.info(f"can't connect new block: {height=}")
             height, header, bad, bad_header = await self._search_headers_backwards(height, header=header)
             chain = self.bc_mgr.check_header(header)
-            can_connect = self.bc_mgr.can_connect(header)
+            can_connect = await self._can_connect(header)
             assert chain or can_connect
         if can_connect:
             height += 1
@@ -1298,6 +1298,10 @@ class Interface(Logger):
 
         good, bad, bad_header = await self._search_headers_binary(height, bad, bad_header, chain)
         return await self._resolve_potential_chain_fork_given_forkpoint(good, bad, bad_header)
+
+    async def _can_connect(self, header: dict):
+        """Run consensus validation without blocking daemon RPCs."""
+        return await asyncio.to_thread(self.bc_mgr.can_connect, header)
 
     async def _search_headers_binary(
         self,
@@ -1377,7 +1381,7 @@ class Interface(Logger):
                 checkp = True
             header = await self.get_block_header(height, mode=ChainResolutionMode.BACKWARD)
             chain = self.bc_mgr.check_header(header)
-            can_connect = self.bc_mgr.can_connect(header)
+            can_connect = await self._can_connect(header)
             if chain or can_connect:
                 return False
             if checkp:
