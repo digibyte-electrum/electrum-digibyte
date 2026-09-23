@@ -23,6 +23,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import asyncio
 from enum import IntEnum
 
 from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
@@ -579,7 +580,14 @@ class ServerWidget(QWidget, QtEventListener):
             oneserver=one_server,
         )
         _logger.debug(f"set_server: {new_net_params=}")
-        self.network.run_from_another_thread(self.network.set_parameters(new_net_params))
+        # Applying a server/mode change can restart interfaces and wait for
+        # in-flight header requests to finish.  Do not wait for that future
+        # from the Qt thread: a slow header operation would make the desktop
+        # report that Electrum is not responding.
+        asyncio.run_coroutine_threadsafe(
+            self.network.set_parameters(new_net_params),
+            self.network.asyncio_loop,
+        )
 
 
 class NostrWidget(QWidget, QtEventListener):
