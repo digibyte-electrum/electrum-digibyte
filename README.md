@@ -6,7 +6,8 @@ incrementally and keeps the upstream Electrum sources available through the
 
 ## Current milestone
 
-`DGB-ELECTRUM-DIGIBYTE-CONSENSUS-HEADERS` — live header synchronization in progress.
+`DGB-ELECTRUM-DIGIBYTE-CONSENSUS-HEADERS` — live header synchronization and
+runtime validation milestone.
 
 Completed so far:
 
@@ -19,6 +20,20 @@ Completed so far:
 - A persistent `run_digibyte` launcher is provided.
 - The existing Qt GUI launches with DigiByte selected and uses the DigiByte
   data directory.
+- The official 23,500,000-header DigiByte checkpoint is used as the bootstrap
+  baseline, with independent source/hash verification documented below.
+- Near-tip DigiByte header validation uses native batches and worker threads so
+  daemon RPC and the GUI remain responsive.
+- The DigiByte difficulty context is extended incrementally; live synchronization
+  no longer rereads the complete header file for every new block.
+
+## Runtime milestone — 2026-09-23
+
+A GUI runtime test reached local height `24,261,697`, equal to the connected
+electrs server height, and displayed the green synchronized status indicator.
+This confirms that the checkpoint-based chain and live post-checkpoint
+validation path can catch up successfully. Wallet balance and transfer testing
+remains the next operational check.
 
 ## DigiByte visual branding
 
