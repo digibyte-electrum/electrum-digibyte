@@ -11,7 +11,7 @@ from electrum.wallet_db import WalletDB
 from electrum.network import parse_servers
 from electrum.digibyte_difficulty import ODO_HEIGHT, POW_LIMIT, algorithm, next_bits, target_to_bits
 from electrum.digibyte_pow import pow_hash, pow_hash_batch
-from electrum.blockchain import Blockchain, deserialize_header, hash_header
+from electrum.blockchain import Blockchain, BlockchainManager, deserialize_header, hash_header, serialize_header
 
 
 
@@ -261,6 +261,40 @@ def test_digibyte_context_retains_sparse_algorithm_history():
     scrypt_heights = [h['block_height'] for h in context if h['version'] == 1]
     assert scrypt_heights == [145320, 145350, 145380, 145410, 145440,
                               145470, 145500, 145530, 145560, 145590]
+
+
+def test_digibyte_fork_chainwork_uses_bootstrap_checkpoint_baseline():
+    constants.DigiByteMainnet.set_as_network()
+    try:
+        with tempfile.TemporaryDirectory() as electrum_path:
+            config = SimpleConfig({'electrum_path': electrum_path, 'digibyte': True})
+            manager = BlockchainManager.from_config(config)
+            parent = manager.get_best_chain()
+            checkpoint_height = constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT
+            assert parent.get_chainwork(checkpoint_height) == 0
+
+            height = checkpoint_height + 1
+            header = {
+                'version': 1,
+                'prev_block_hash': parent.get_hash(checkpoint_height),
+                'merkle_root': '11' * 32,
+                'timestamp': 1,
+                'bits': target_to_bits(POW_LIMIT),
+                'nonce': 0,
+                'block_height': height,
+            }
+            child = Blockchain(
+                bc_mgr=manager,
+                forkpoint=height,
+                parent=parent,
+                forkpoint_hash=hash_header(header),
+                prev_hash=header['prev_block_hash'],
+            )
+            open(child.path(), 'w+').close()
+            child.save_header(header)
+            assert child.get_chainwork() > 0
+    finally:
+        constants.BitcoinMainnet.set_as_network()
 
 
 def test_create_and_restore_standard_wallet():

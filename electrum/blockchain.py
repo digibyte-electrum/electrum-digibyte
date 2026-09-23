@@ -277,7 +277,16 @@ class Blockchain(Logger):
         self._forkpoint_hash = forkpoint_hash  # blockhash at forkpoint. "first hash"
         self._prev_hash = prev_hash  # blockhash immediately before forkpoint
         self.lock = threading.RLock()
-        self._digibyte_chainwork_cache = {-1: 0}
+        # DigiByte's official bootstrap checkpoint deliberately does not
+        # materialize every pre-checkpoint header locally.  Chain selection
+        # only permits forks above that checkpoint, so use it as the common
+        # chainwork baseline instead of trying to read sparse header 0.
+        if constants.net.NET_NAME == 'digibyte':
+            self._digibyte_chainwork_cache = {
+                constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT: 0,
+            }
+        else:
+            self._digibyte_chainwork_cache = {-1: 0}
         self._digibyte_context = None
         self.update_size()
 
@@ -733,6 +742,12 @@ class Blockchain(Logger):
         if constants.net.NET_NAME == 'digibyte':
             # DigiByte adjusts difficulty per block and per algorithm; the
             # Bitcoin chunk-wide target shortcut is not consensus-correct.
+            # Work before the official bootstrap checkpoint is omitted from
+            # the local sparse header store and is common to all valid
+            # candidate chains, so comparisons use checkpoint-relative work.
+            checkpoint_height = constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT
+            if height <= checkpoint_height:
+                return 0
             cached_heights = [h for h in self._digibyte_chainwork_cache if h <= height]
             cached_height = max(cached_heights)
             running = self._digibyte_chainwork_cache[cached_height]
