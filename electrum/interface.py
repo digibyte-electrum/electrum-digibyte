@@ -1236,7 +1236,15 @@ class Interface(Logger):
         last = None  # type: Optional[ChainResolutionMode]
         while last is None or height <= next_height:
             prev_last, prev_height = last, height
-            if next_height > height + 144:
+            # DigiByte PoW validation is substantially cheaper as one native
+            # batch, even when we are close to the server tip.  If the batch
+            # does not connect, fall back to the one-by-one path below so
+            # fork detection still works correctly.
+            batch_catchup = (
+                constants.net.NET_NAME == 'digibyte'
+                and next_height > height + 1
+            )
+            if next_height > height + 144 or batch_catchup:
                 # We are far from the tip.
                 # It is more efficient to process headers in large batches (CPU/disk_usage/logging).
                 # (but this wastes a little bandwidth, if we are not on a chunk boundary)
