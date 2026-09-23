@@ -850,7 +850,14 @@ class Blockchain(Logger):
         cached_end = (self._digibyte_context[-1]['block_height'] + 1
                       if self._digibyte_context else 0)
         if self._digibyte_context is None or cached_end < available_end:
-            if start_height == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT + 1:
+            if self._digibyte_context is not None:
+                # The full header file can contain tens of millions of
+                # headers.  Once the compact context exists, extend it only
+                # with headers appended since the previous validation rather
+                # than rereading and recompressing the complete chain.
+                headers = self._read_digibyte_headers(cached_end, available_end)
+                headers = self._digibyte_context + headers
+            elif start_height == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT + 1:
                 if self.height() == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT:
                     headers = [self.read_header(constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT)]
                 else:
