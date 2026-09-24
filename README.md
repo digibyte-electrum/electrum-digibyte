@@ -1,3 +1,5 @@
+![Logo](contrib/electrum-digibyte-logo.svg)
+
 # Electrum-DigiByte
 
 This repository is the DigiByte client based on Electrum. It is being built
@@ -86,6 +88,10 @@ validation path can catch up successfully. Wallet balance and transfer testing
 remains the next operational check.
 
 ## DigiByte visual branding
+
+The README uses the matching `contrib/electrum-digibyte-logo.svg` mark, with
+the official DigiByte symbol at the center and the text “electrum DigiByte
+wallet”.
 
 The wallet uses the official DigiByte symbol icon for on-chain coin indicators.
 The Electrum application, QR-code center mark, and wizard imagery retain their
