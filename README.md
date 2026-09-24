@@ -69,13 +69,28 @@ sudo apt install \
   libsecp256k1-dev automake libtool
 ```
 
-The DigiByte header validator also needs the project-local native PoW library.
-Building it requires a C++17-or-newer compiler and a local DigiByte Core source
-checkout:
+### Native DigiByte PoW library — source builds only
+
+This step is required only when compiling and running Electrum-DigiByte from
+this source repository. Bundled or packaged applications include the native
+library and do not require the user to install a compiler or DigiByte Core
+source code.
+
+The DigiByte header validator uses a project-local native PoW library. Building
+it requires a C++17-or-newer compiler and a local checkout of the official
+DigiByte Core source. The full DigiByte Core daemon does not need to be built;
+the source files are used to compile the validator library:
 
 ```bash
-DIGIBYTE_CORE_DIR=/path/to/digibyte-core ./contrib/build_digibyte_pow.sh
+git clone https://github.com/DigiByte-Core/digibyte.git ~/src/digibyte-core
+
+DIGIBYTE_CORE_DIR="$HOME/src/digibyte-core" \
+  ./contrib/build_digibyte_pow.sh
 ```
+
+The command creates `.build/libdigibytepow.so`. The source launcher loads this
+library automatically. If it is stored elsewhere, set
+`DIGIBYTE_POW_LIBRARY=/path/to/libdigibytepow.so` before starting the client.
 
 QR scanning is optional. To enable the QR scanner on Ubuntu, install its
 runtime library:
@@ -106,8 +121,8 @@ If the local environment has already been prepared, run the client with:
 `run_digibyte` supplies the project-local libsecp256k1 library path and uses
 the project virtual environment.
 
-The DigiByte PoW adapter is built from an official DigiByte Core source
-checkout:
+For source builds, the DigiByte PoW adapter is built from an official DigiByte
+Core source checkout:
 
 ```bash
 DIGIBYTE_CORE_DIR=/path/to/digibyte-core ./contrib/build_digibyte_pow.sh
