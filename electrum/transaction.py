@@ -374,7 +374,14 @@ class TxInput:
     @property
     def short_id(self):
         if self.has_short_id():
-            return ShortID.from_components(self.block_height, self.block_txpos, self.prevout.out_idx)
+            try:
+                return ShortID.from_components(self.block_height, self.block_txpos, self.prevout.out_idx)
+            except OverflowError:
+                # ShortID is an 8-byte Lightning encoding with a 3-byte block
+                # height. DigiByte mainnet has exceeded that display format's
+                # maximum height, so retain the readable text form instead of
+                # crashing when the UTXO list renders a mined output.
+                return f"{self.block_height}x{self.block_txpos}x{self.prevout.out_idx}"
         else:
             return self.prevout.short_name()
 

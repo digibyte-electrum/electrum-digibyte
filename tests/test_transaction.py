@@ -173,6 +173,8 @@ class TestTransaction(ElectrumTestCase):
         # mined and SPV-ed:
         self.assertEqual('600000x7x0', short_id_for(block_height=600000, block_txpos=7))
         self.assertEqual('600000x0x0', short_id_for(block_height=600000, block_txpos=0))
+        # DigiByte heights exceed the 3-byte Lightning short-ID height field.
+        self.assertEqual('16777216x7x0', short_id_for(block_height=16777216, block_txpos=7))
         # position in block unknown:
         self.assertEqual(outpoint_str, short_id_for(block_height=600000, block_txpos=None))
         self.assertEqual(outpoint_str, short_id_for(block_height=600000, block_txpos=-1))
