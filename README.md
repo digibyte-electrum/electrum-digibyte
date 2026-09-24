@@ -27,6 +27,13 @@ Completed so far:
 - The DigiByte difficulty context is extended incrementally; live synchronization
   no longer rereads the complete header file for every new block.
 
+The wallet must connect to a running Electrum protocol server that indexes the
+DigiByte blockchain. The recommended endpoint is the DigiByte-modified electrs
+service, normally published on port `50011`; another Electrum-compatible server
+may be used if it indexes DigiByte and implements the required DigiByte network
+behavior. A standard Bitcoin electrum server is not compatible, even if it is
+reachable on the same port.
+
 ## Runtime milestone — 2026-09-23
 
 A GUI runtime test reached local height `24,261,697`, equal to the connected
@@ -212,8 +219,14 @@ The current baseline is 112 passing tests and 17 subtests.
 
 ## Local electrs smoke test
 
-The server endpoint must be supplied explicitly for a local test. Replace the
-example address with the electrs server selected by the operator:
+The wallet does not index transaction history by itself. It must connect to a
+running Electrum server that is indexing DigiByte, such as the modified electrs
+deployment documented in the companion electrs repository. The usual local
+endpoint is `192.168.1.66:50011:t`, where `50011` is the host-side port mapped
+to the electrs Electrum service. Replace the example address with the DigiByte
+Electrum server selected by the operator; do not use a Bitcoin-indexing server.
+
+The server endpoint must be supplied explicitly for a local test:
 
 ```bash
 ./run_digibyte \
