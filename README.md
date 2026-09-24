@@ -34,6 +34,49 @@ may be used if it indexes DigiByte and implements the required DigiByte network
 behavior. A standard Bitcoin electrum server is not compatible, even if it is
 reachable on the same port.
 
+## Building the DigiByte wallet stack
+
+The complete self-hosted structure is:
+
+```text
+DigiByte full node
+        |
+        | RPC 14022 / P2P 12024
+        v
+DigiByte-indexing electrs
+        |
+        | Electrum protocol, normally host port 50011
+        v
+Electrum-DigiByte wallet
+```
+
+To build this stack, first run a synchronized DigiByte full node with
+transaction indexing enabled (`txindex=1`). Then run an electrs server adapted
+for DigiByte and configured to connect to that node. Finally configure this
+wallet to connect to the electrs endpoint, normally:
+
+```text
+<electrs-host>:50011:t
+```
+
+The public companion repository contains the DigiByte electrs implementation,
+Docker image configuration, and TrueNAS/Linux deployment instructions:
+
+[DigiByte electrs — public repository](https://github.com/digibyte-electrum/electrs)
+
+The electrs service indexes DigiByte transactions and provides fast wallet
+queries. It does not replace the full node, and the wallet does not connect to
+the node's RPC port directly. The wallet must use an Electrum server indexing
+DigiByte, not a normal Bitcoin electrum server.
+
+For container deployments, place the node and electrs on the same private
+Docker network. The electrs container can reach the node through the service
+name `digibyte`, while the wallet connects through the host's published electrs
+port `50011`. Start the node first, wait for blockchain and `txindex`
+synchronization, then start electrs and wait for its index to build before using
+the wallet for balance, history, or transfer operations. See the companion
+repository for the complete Compose examples.
+
 ## Runtime milestone — 2026-09-23
 
 A GUI runtime test reached local height `24,261,697`, equal to the connected
