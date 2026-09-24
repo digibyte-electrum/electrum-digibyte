@@ -84,8 +84,16 @@ repository for the complete Compose examples.
 A GUI runtime test reached local height `24,261,697`, equal to the connected
 electrs server height, and displayed the green synchronized status indicator.
 This confirms that the checkpoint-based chain and live post-checkpoint
-validation path can catch up successfully. Wallet balance and transfer testing
-remains the next operational check.
+validation path can catch up successfully.
+
+## Wallet transaction milestone — 2026-09-24
+
+The synchronized GUI wallet successfully received and sent DigiByte in an
+operator smoke test. The wallet displayed the received balance and confirmed
+transaction correctly. A DigiByte-specific UTXO display regression was also
+fixed: block heights above the legacy three-byte ShortID limit now render as a
+readable `heightxtransaction-positionxoutput-index` value instead of crashing
+the GUI. The transaction test file passes 153 tests and 24 subtests.
 
 ## DigiByte visual branding
 
@@ -317,9 +325,9 @@ Update this section as the client implementation advances:
 - [x] Batched native PoW verification for faster initial header synchronization.
 - [x] Operator smoke test confirmed verified header synchronization reaching height 80,639.
 - [x] Operator runtime validation confirmed synchronization progressing toward height 2,000,000.
-- [ ] Complete full header synchronization and wallet query validation.
+- [x] Wallet balance, receive, and send smoke test against the synchronized wallet.
+- [ ] Complete full header synchronization validation and packaging updates.
 - [x] Trusted checkpoint/header bootstrap for faster first launch (operator checkpoint pending independent Core verification).
-- [ ] Packaging updates.
 
 ---
 
