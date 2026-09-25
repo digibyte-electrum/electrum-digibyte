@@ -165,7 +165,7 @@ class ElectrumGui(BaseElectrumGui, Logger):
             self.app.installEventFilter(self.screenshot_protection_efilter)
         # explicitly set 'AA_DontShowIconsInMenus' False so menu icons are shown on MacOS
         self.app.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus, on=False)
-        self.app.setWindowIcon(read_QIcon("electrum.png"))
+        self.app.setWindowIcon(read_QIcon("electrum_digibyte.svg"))
         self.translator = ElectrumTranslator()
         self.app.installTranslator(self.translator)
         break_qt_network()
