@@ -26,6 +26,10 @@ if [ -z "$ELECBUILD_COMMIT" ] ; then  # local dev build
     DOCKER_BUILD_FLAGS="$DOCKER_BUILD_FLAGS --build-arg UID=$BUILD_UID"
 fi
 
+if [ ! -f "$PROJECT_ROOT/.build/libdigibytepow.so" ]; then
+    fail "Missing $PROJECT_ROOT/.build/libdigibytepow.so. Build it first with DIGIBYTE_CORE_DIR=/path/to/digibyte-core ./contrib/build_digibyte_pow.sh"
+fi
+
 info "building docker image."
 docker build \
     $DOCKER_BUILD_FLAGS \
@@ -41,6 +45,8 @@ if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     git clone "$PROJECT_ROOT" "$FRESH_CLONE"
     cd "$FRESH_CLONE"
     git checkout "$ELECBUILD_COMMIT"
+    mkdir -p "$FRESH_CLONE/.build"
+    cp "$PROJECT_ROOT/.build/libdigibytepow.so" "$FRESH_CLONE/.build/"
     PROJECT_ROOT_OR_FRESHCLONE_ROOT="$FRESH_CLONE"
 else
     info "not doing fresh clone."

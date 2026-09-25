@@ -1,5 +1,5 @@
-AppImage binary for Electrum
-============================
+AppImage binary for Electrum DigiByte
+=====================================
 
 ✓ _This binary should be reproducible, meaning you should be able to generate
    binaries that match the official releases._
@@ -8,6 +8,11 @@ AppImage binary for Electrum
 
 This assumes an Ubuntu host, but it should not be too hard to adapt to another
 similar system. The host architecture should be x86_64 (amd64).
+
+The image is self-contained: it bundles Python, Qt, the required runtime
+libraries, the DigiByte desktop icon, and the native DigiByte PoW validator.
+It still connects to an Electrum protocol server indexing DigiByte, such as a
+DigiByte-adapted electrs service; it does not include a full blockchain node.
 
 We currently only build a single AppImage, for x86_64 architecture.
 Help to adapt these scripts to build for (some flavor of) ARM would be welcome,
@@ -20,7 +25,19 @@ see [issue #5159](https://github.com/spesmilo/electrum/issues/5159).
 
     (worth reading even if you already have docker)
 
-2. Build binary
+2. Build the DigiByte native validator
+
+    This is needed once on the build host. The AppImage builder copies the
+    resulting library into the image; end users do not need DigiByte Core
+    source code or a compiler.
+
+    ```
+    $ git clone https://github.com/DigiByte-Core/digibyte.git ~/src/digibyte-core
+    $ DIGIBYTE_CORE_DIR="$HOME/src/digibyte-core" \
+        ./contrib/build_digibyte_pow.sh
+    ```
+
+3. Build binary
 
     ```
     $ ./build.sh
@@ -30,7 +47,7 @@ see [issue #5159](https://github.com/spesmilo/electrum/issues/5159).
     $ ELECBUILD_COMMIT=HEAD ./build.sh
     ```
 
-3. The generated binary is in `./dist`.
+4. The generated binary is in `./dist`.
 
 
 ## FAQ

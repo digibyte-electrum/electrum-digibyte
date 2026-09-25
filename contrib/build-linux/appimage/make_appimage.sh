@@ -26,6 +26,11 @@ PKG2APPIMAGE_COMMIT="a9c85b7e61a3a883f4a35c41c5decb5af88b6b5d"
 
 VERSION=$(git describe --tags --dirty --always)
 APPIMAGE="$DISTDIR/electrum-$VERSION-x86_64.AppImage"
+DIGIBYTE_POW_LIBRARY="$PROJECT_ROOT/.build/libdigibytepow.so"
+
+if [ ! -f "$DIGIBYTE_POW_LIBRARY" ]; then
+    fail "Missing $DIGIBYTE_POW_LIBRARY. Build it first with DIGIBYTE_CORE_DIR=/path/to/digibyte-core ./contrib/build_digibyte_pow.sh"
+fi
 
 rm -rf "$BUILDDIR"
 mkdir -p "$APPDIR" "$CACHEDIR" "$PIP_CACHE_DIR" "$DISTDIR" "$DLL_TARGET_DIR"
@@ -96,6 +101,9 @@ else
     "$CONTRIB"/make_zbar.sh || fail "Could not build zbar"
 fi
 cp -f "$DLL_TARGET_DIR/libzbar.so.0" "$APPDIR/usr/lib/" || fail "Could not copy libzbar to its destination"
+
+# Keep DigiByte header validation self-contained in the AppImage.
+cp -f "$DIGIBYTE_POW_LIBRARY" "$APPDIR/usr/lib/" || fail "Could not copy DigiByte PoW library"
 
 
 appdir_python() {

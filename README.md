@@ -496,7 +496,9 @@ $ pytest tests/test_bitcoin.py -v
 ## Creating Binaries
 
 - [Linux (tarball)](contrib/build-linux/sdist/README.md)
-- [Linux (AppImage)](contrib/build-linux/appimage/README.md)
+- [Linux (AppImage)](contrib/build-linux/appimage/README.md) — self-contained
+  x86_64 bundle including Python, Qt, runtime libraries, the DigiByte icon, and
+  the native DigiByte PoW validator.
 - [macOS](contrib/osx/README.md)
 - [Windows](contrib/build-wine/README.md)
 - [Android](contrib/android/Readme.md)
