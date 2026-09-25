@@ -189,8 +189,9 @@ the project virtual environment.
 
 The Qt application and Linux desktop entry use the DigiByte-branded icon
 `electrum/gui/icons/electrum_digibyte.svg`. To install the source checkout as a
-user desktop application, copy the icon into the local icon theme and install
-the desktop entry:
+user desktop application, use the dedicated `electrum-digibyte.desktop` entry,
+which identifies the process separately from the upstream Electrum launcher.
+Copy the icon into the local icon theme and install the desktop entry:
 
 ```bash
 mkdir -p "$HOME/.local/share/icons/hicolor/scalable/apps"
@@ -198,6 +199,14 @@ cp electrum/gui/icons/electrum_digibyte.svg \
   "$HOME/.local/share/icons/hicolor/scalable/apps/electrum_digibyte.svg"
 desktop-file-install --dir="$HOME/.local/share/applications" electrum-digibyte.desktop
 update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
+```
+
+If `desktop-file-install` is unavailable, copy the desktop entry directly:
+
+```bash
+mkdir -p "$HOME/.local/share/applications"
+cp electrum-digibyte.desktop \
+  "$HOME/.local/share/applications/electrum-digibyte.desktop"
 ```
 
 Remove the old Electrum launcher from the dock and launch **Electrum DigiByte
