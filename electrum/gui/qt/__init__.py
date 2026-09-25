@@ -159,6 +159,11 @@ class ElectrumGui(BaseElectrumGui, Logger):
         self.windows = []  # type: List[ElectrumWindow]
         self.open_file_efilter = OpenFileEventFilter(self.windows)
         self.app = QElectrumApplication(sys.argv)
+        # Wayland uses the desktop-file name as the application ID used for
+        # dock/taskbar grouping. Set it after QApplication construction too,
+        # as some Qt platform plugins only read it from the live instance.
+        if hasattr(self.app, 'setDesktopFileName'):
+            self.app.setDesktopFileName('electrum-digibyte')
         self.app.installEventFilter(self.open_file_efilter)
         self.screenshot_protection_efilter = ScreenshotProtectionEventFilter()
         if sys.platform in ['win32', 'windows'] and self.config.GUI_QT_SCREENSHOT_PROTECTION:
