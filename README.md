@@ -499,6 +499,68 @@ $ pytest tests/test_bitcoin.py -v
 - [Windows](contrib/build-wine/README.md)
 - [Android](contrib/android/Readme.md)
 
+### Building the AppImage from source
+
+The AppImage build uses Docker only as an isolated, reproducible build
+environment. Docker is not needed to run the finished AppImage. The builder
+automatically downloads the official DigiByte Core source, compiles the native
+DigiByte PoW validator, and embeds it in the AppImage. End users only download
+and execute the resulting file.
+
+The supported build target is Linux x86_64/amd64. On Ubuntu or Debian, install
+Docker Engine from Docker's official APT repository:
+
+```bash
+sudo apt update
+sudo apt install -y ca-certificates curl git
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg \
+  -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")
+Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io \
+  docker-buildx-plugin docker-compose-plugin
+sudo systemctl enable --now docker
+```
+
+Allow the current user to run Docker without `sudo`, then start a new login
+session (or run `newgrp docker`):
+
+```bash
+sudo usermod -aG docker "$USER"
+newgrp docker
+docker run --rm hello-world
+```
+
+The `docker` group grants root-equivalent access to the host. Keep membership
+limited to trusted users. Then build from the repository root:
+
+```bash
+./contrib/build-linux/appimage/build.sh
+```
+
+The first build downloads the pinned AppImage tooling, Python sources, and the
+official DigiByte Core source, so it can take time and requires internet access
+and several gigabytes of temporary disk space. Subsequent builds reuse caches.
+Use `ELECBUILD_NOCACHE=1` only when a clean Docker image is required. The final
+file is written to `dist/electrum-<version>-x86_64.AppImage` and can be run
+without installing anything:
+
+```bash
+chmod +x dist/electrum-*-x86_64.AppImage
+./dist/electrum-*-x86_64.AppImage
+```
+
 
 ## Contributing
 
