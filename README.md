@@ -196,12 +196,14 @@ the desktop entry:
 mkdir -p "$HOME/.local/share/icons/hicolor/scalable/apps"
 cp electrum/gui/icons/electrum_digibyte.svg \
   "$HOME/.local/share/icons/hicolor/scalable/apps/electrum_digibyte.svg"
-desktop-file-install --dir="$HOME/.local/share/applications" electrum.desktop
+desktop-file-install --dir="$HOME/.local/share/applications" electrum-digibyte.desktop
 update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
 ```
 
-Restart the application or log out and back in if Ubuntu's dock continues to
-show a cached generic icon. AppImage builds include the same icon automatically.
+Remove the old Electrum launcher from the dock and launch **Electrum DigiByte
+Wallet** once from the application menu before pinning it again. Restart the
+application or log out and back in if Ubuntu's dock continues to show a cached
+generic icon. AppImage builds include the same icon automatically.
 
 For source builds, the DigiByte PoW adapter is built from an official DigiByte
 Core source checkout:

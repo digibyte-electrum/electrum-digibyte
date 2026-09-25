@@ -1,0 +1,13 @@
+# DigiByte desktop entry for the Electrum-DigiByte source/build artifacts.
+[Desktop Entry]
+Comment=Electrum DigiByte Wallet
+Exec=electrum --digibyte %u
+GenericName=DigiByte Wallet
+Icon=electrum_digibyte
+Name=Electrum DigiByte Wallet
+Categories=Finance;Network;
+StartupNotify=true
+StartupWMClass=electrum-digibyte
+Terminal=false
+Type=Application
+Keywords=crypto;currency;DigiByte;DGB
