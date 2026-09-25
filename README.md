@@ -189,25 +189,21 @@ the project virtual environment.
 
 The Qt application and Linux desktop entry use the DigiByte-branded icon
 `electrum/gui/icons/electrum_digibyte.svg`. To install the source checkout as a
-user desktop application, use the dedicated `electrum-digibyte.desktop` entry,
-which identifies the process separately from the upstream Electrum launcher.
-Copy the icon into the local icon theme and install the desktop entry:
+user desktop application, run:
 
 ```bash
-mkdir -p "$HOME/.local/share/icons/hicolor/scalable/apps"
-cp electrum/gui/icons/electrum_digibyte.svg \
-  "$HOME/.local/share/icons/hicolor/scalable/apps/electrum_digibyte.svg"
-desktop-file-install --dir="$HOME/.local/share/applications" electrum-digibyte.desktop
-update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
+./contrib/install_desktop_entry.sh
 ```
 
-If `desktop-file-install` is unavailable, copy the desktop entry directly:
+For an AppImage, pass its path so the launcher points to the downloaded file:
 
 ```bash
-mkdir -p "$HOME/.local/share/applications"
-cp electrum-digibyte.desktop \
-  "$HOME/.local/share/applications/electrum-digibyte.desktop"
+./contrib/install_desktop_entry.sh \
+  "$HOME/Downloads/electrum-<version>-x86_64.AppImage"
 ```
+
+The script installs the DigiByte icon and creates a user-level launcher under
+`~/.local/share/applications`; administrator privileges are not required.
 
 Remove the old Electrum launcher from the dock and launch **Electrum DigiByte
 Wallet** once from the application menu before pinning it again. Restart the
