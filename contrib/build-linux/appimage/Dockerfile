@@ -26,6 +26,7 @@ RUN apt-get update -q && \
     apt-get install -qy --allow-downgrades \
         sudo \
         git \
+        g++ \
         wget \
         python3 \
         make \

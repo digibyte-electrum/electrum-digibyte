@@ -25,19 +25,7 @@ see [issue #5159](https://github.com/spesmilo/electrum/issues/5159).
 
     (worth reading even if you already have docker)
 
-2. Build the DigiByte native validator
-
-    This is needed once on the build host. The AppImage builder copies the
-    resulting library into the image; end users do not need DigiByte Core
-    source code or a compiler.
-
-    ```
-    $ git clone https://github.com/DigiByte-Core/digibyte.git ~/src/digibyte-core
-    $ DIGIBYTE_CORE_DIR="$HOME/src/digibyte-core" \
-        ./contrib/build_digibyte_pow.sh
-    ```
-
-3. Build binary
+2. Build binary
 
     ```
     $ ./build.sh
@@ -47,7 +35,11 @@ see [issue #5159](https://github.com/spesmilo/electrum/issues/5159).
     $ ELECBUILD_COMMIT=HEAD ./build.sh
     ```
 
-4. The generated binary is in `./dist`.
+3. The generated binary is in `./dist`.
+
+The Docker build automatically downloads the official DigiByte Core source
+when the cached native validator is not available, compiles it, and embeds the
+result in the AppImage. No DigiByte Core installation is needed by end users.
 
 
 ## FAQ

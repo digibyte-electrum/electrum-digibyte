@@ -27,13 +27,20 @@ PKG2APPIMAGE_COMMIT="a9c85b7e61a3a883f4a35c41c5decb5af88b6b5d"
 VERSION=$(git describe --tags --dirty --always)
 APPIMAGE="$DISTDIR/electrum-$VERSION-x86_64.AppImage"
 DIGIBYTE_POW_LIBRARY="$PROJECT_ROOT/.build/libdigibytepow.so"
-
-if [ ! -f "$DIGIBYTE_POW_LIBRARY" ]; then
-    fail "Missing $DIGIBYTE_POW_LIBRARY. Build it first with DIGIBYTE_CORE_DIR=/path/to/digibyte-core ./contrib/build_digibyte_pow.sh"
-fi
+DIGIBYTE_CORE_CACHE="$CACHEDIR/digibyte-core"
 
 rm -rf "$BUILDDIR"
 mkdir -p "$APPDIR" "$CACHEDIR" "$PIP_CACHE_DIR" "$DISTDIR" "$DLL_TARGET_DIR"
+
+if [ ! -f "$DIGIBYTE_POW_LIBRARY" ]; then
+    info "building the DigiByte native PoW validator."
+    if [ ! -d "$DIGIBYTE_CORE_CACHE/src/crypto" ]; then
+        rm -rf "$DIGIBYTE_CORE_CACHE"
+        git clone --depth 1 https://github.com/DigiByte-Core/digibyte.git "$DIGIBYTE_CORE_CACHE"
+    fi
+    DIGIBYTE_CORE_DIR="$DIGIBYTE_CORE_CACHE" \
+        "$CONTRIB/build_digibyte_pow.sh" || fail "Could not build DigiByte PoW validator"
+fi
 
 # potential leftover from setuptools that might make pip put garbage in binary
 rm -rf "$PROJECT_ROOT/build"
