@@ -1066,7 +1066,9 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
             # or the local header chain is still catching up.
             headers_syncing = server_height > 0 and local_height < server_height
             if headers_syncing:
-                network_text = _("Synchronizing headers...")
+                progress = min(100.0, max(0.0, local_height / server_height * 100))
+                network_text = _("Synchronizing headers... {}% ({} / {})").format(
+                    f"{progress:.1f}", local_height, server_height)
                 icon = read_QIcon("status_waiting.png")
             elif not self.wallet.is_up_to_date() or server_height == 0:
                 num_sent, num_answered = self.wallet.adb.get_history_sync_state_details()
