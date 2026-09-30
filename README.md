@@ -36,6 +36,47 @@ may be used if it indexes DigiByte and implements the required DigiByte network
 behavior. A standard Bitcoin electrum server is not compatible, even if it is
 reachable on the same port.
 
+## Development status and milestones
+
+Development and operator testing are currently being performed on **Ubuntu 26
+(x86_64/amd64)**. This project is an active DigiByte adaptation of upstream
+Electrum and is not presented as an official DigiByte release.
+
+### 2026-09-24 — wallet transaction validation
+
+- Receiving and sending DigiByte were validated against the DigiByte-indexing
+  electrs service.
+- A GUI crash caused by DigiByte block heights exceeding Electrum's legacy
+  three-byte UTXO ShortID field was fixed.
+- Large DigiByte UTXOs now use a readable fallback identifier when the compact
+  ShortID format cannot represent their height.
+
+### 2026-09-25 — DigiByte branding and packaging
+
+- The GUI, wallet window, desktop entry, and Linux application icon use
+  DigiByte branding instead of Bitcoin branding.
+- The Lightning Channels tab is hidden because DigiByte does not support the
+  Bitcoin Lightning implementation used by upstream Electrum.
+- AppImage packaging bundles Python, Qt, runtime libraries, the DigiByte icon,
+  and the native DigiByte PoW validator.
+- The AppImage Docker builder automatically obtains the official DigiByte Core
+  source and compiles the native PoW validator when it is not cached.
+- A desktop-entry installer was added for source checkouts and downloaded
+  AppImages.
+
+### 2026-09-30 — Ubuntu 26 and Wayland integration
+
+- The Wayland application identity is explicitly set to
+  `electrum-digibyte`, allowing Ubuntu to associate the running wallet with
+  its DigiByte dock/menu launcher.
+- Docker-based AppImage build prerequisites and output instructions are
+  documented below.
+- These changes are pushed to the `origin/digi` branch.
+
+The AppImage build pipeline is implemented, but an AppImage file is generated
+locally only when the maintainer runs the documented build command. This
+repository does not claim that a binary release has already been produced.
+
 ## Building the DigiByte wallet stack
 
 The complete self-hosted structure is:
