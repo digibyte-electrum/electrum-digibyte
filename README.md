@@ -548,21 +548,23 @@ automatically downloads the official DigiByte Core source, compiles the native
 DigiByte PoW validator, and embeds it in the AppImage. End users only download
 and execute the resulting file.
 
-The supported build target is Linux x86_64/amd64. On Ubuntu or Debian, install
-Docker Engine from Docker's official APT repository:
+The supported build target is Linux x86_64/amd64. The development environment
+is Ubuntu 26.04 (`resolute`). Install Docker Engine from Docker's official APT
+repository; installing only Ubuntu's base packages is not sufficient because
+the `docker-ce` packages are provided by Docker's repository.
 
 ```bash
 sudo apt update
 sudo apt install -y ca-certificates curl git
 sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg \
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
   -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
 
 sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF
 Types: deb
-URIs: https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")
-Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
 Components: stable
 Architectures: $(dpkg --print-architecture)
 Signed-By: /etc/apt/keyrings/docker.asc
@@ -575,16 +577,22 @@ sudo systemctl enable --now docker
 ```
 
 Allow the current user to run Docker without `sudo`, then start a new login
-session (or run `newgrp docker`):
+session. Logging out and back in is the most reliable option. On minimal
+installations where `newgrp` is unavailable, install `util-linux-extra` first:
 
 ```bash
 sudo usermod -aG docker "$USER"
+sudo apt install -y util-linux-extra
 newgrp docker
 docker run --rm hello-world
 ```
 
-The `docker` group grants root-equivalent access to the host. Keep membership
-limited to trusted users. Then build from the repository root:
+Alternatively, close the terminal, log out of Ubuntu, log back in, and run
+`docker run --rm hello-world` in a new terminal. The `docker` group grants
+root-equivalent access to the host, so keep membership limited to trusted
+users.
+
+Then build from the repository root:
 
 ```bash
 ./contrib/build-linux/appimage/build.sh
