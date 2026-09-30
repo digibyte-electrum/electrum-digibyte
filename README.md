@@ -6,10 +6,10 @@ This repository is the DigiByte client based on Electrum. It is being built
 incrementally and keeps the upstream Electrum sources available through the
 `upstream` Git remote.
 
-## Current milestone
+## Current milestone — 2026-09-30
 
-`DGB-ELECTRUM-DIGIBYTE-CONSENSUS-HEADERS` — live header synchronization and
-runtime validation milestone.
+`DGB-ELECTRUM-PACKAGING-DESKTOP-INTEGRATION` — DigiByte wallet runtime,
+branding, Wayland desktop integration, and self-contained AppImage packaging.
 
 Completed so far:
 
@@ -42,14 +42,14 @@ Development and operator testing are currently being performed on **Ubuntu 26
 (x86_64/amd64)**. This project is an active DigiByte adaptation of upstream
 Electrum and is not presented as an official DigiByte release.
 
-### 2026-09-24 — wallet transaction validation
+### 2026-09-30 — Ubuntu 26 and Wayland integration
 
-- Receiving and sending DigiByte were validated against the DigiByte-indexing
-  electrs service.
-- A GUI crash caused by DigiByte block heights exceeding Electrum's legacy
-  three-byte UTXO ShortID field was fixed.
-- Large DigiByte UTXOs now use a readable fallback identifier when the compact
-  ShortID format cannot represent their height.
+- The Wayland application identity is explicitly set to
+  `electrum-digibyte`, allowing Ubuntu to associate the running wallet with
+  its DigiByte dock/menu launcher.
+- Docker-based AppImage build prerequisites and output instructions are
+  documented below.
+- These changes are pushed to the `origin/digi` branch.
 
 ### 2026-09-25 — DigiByte branding and packaging
 
@@ -64,14 +64,14 @@ Electrum and is not presented as an official DigiByte release.
 - A desktop-entry installer was added for source checkouts and downloaded
   AppImages.
 
-### 2026-09-30 — Ubuntu 26 and Wayland integration
+### 2026-09-24 — wallet transaction validation
 
-- The Wayland application identity is explicitly set to
-  `electrum-digibyte`, allowing Ubuntu to associate the running wallet with
-  its DigiByte dock/menu launcher.
-- Docker-based AppImage build prerequisites and output instructions are
-  documented below.
-- These changes are pushed to the `origin/digi` branch.
+- Receiving and sending DigiByte were validated against the DigiByte-indexing
+  electrs service.
+- A GUI crash caused by DigiByte block heights exceeding Electrum's legacy
+  three-byte UTXO ShortID field was fixed.
+- Large DigiByte UTXOs now use a readable fallback identifier when the compact
+  ShortID format cannot represent their height.
 
 The AppImage build pipeline is implemented, but an AppImage file is generated
 locally only when the maintainer runs the documented build command. This
@@ -119,22 +119,6 @@ port `50011`. Start the node first, wait for blockchain and `txindex`
 synchronization, then start electrs and wait for its index to build before using
 the wallet for balance, history, or transfer operations. See the companion
 repository for the complete Compose examples.
-
-## Runtime milestone — 2026-09-23
-
-A GUI runtime test reached local height `24,261,697`, equal to the connected
-electrs server height, and displayed the green synchronized status indicator.
-This confirms that the checkpoint-based chain and live post-checkpoint
-validation path can catch up successfully.
-
-## Wallet transaction milestone — 2026-09-24
-
-The synchronized GUI wallet successfully received and sent DigiByte in an
-operator smoke test. The wallet displayed the received balance and confirmed
-transaction correctly. A DigiByte-specific UTXO display regression was also
-fixed: block heights above the legacy three-byte ShortID limit now render as a
-readable `heightxtransaction-positionxoutput-index` value instead of crashing
-the GUI. The transaction test file passes 153 tests and 24 subtests.
 
 ## DigiByte visual branding
 
@@ -216,6 +200,35 @@ Additional project development packages are listed in:
 ```text
 contrib/requirements/requirements-digibyte-dev.txt
 ```
+
+Clone this DigiByte fork, not the upstream Bitcoin client:
+
+```bash
+git clone --branch digi https://github.com/digibyte-electrum/electrum-digibyte.git
+cd electrum-digibyte
+```
+
+Create the virtual environment and install the runtime and DigiByte
+development dependencies:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/pip install -r contrib/requirements/requirements.txt
+.venv/bin/pip install -r contrib/requirements/requirements-digibyte-dev.txt
+```
+
+The Qt GUI additionally requires PyQt6 and the native secp256k1 development
+library. On Ubuntu 26:
+
+```bash
+sudo apt update
+sudo apt install -y python3-dev python3-pyqt6 libsecp256k1-dev automake libtool
+```
+
+The native DigiByte PoW library is also required for source checkouts. Follow
+the source-build instructions above; packaged applications and AppImages
+already include it.
 
 If the local environment has already been prepared, run the client with:
 
@@ -392,143 +405,17 @@ Update this section as the client implementation advances:
 - [x] Operator smoke test confirmed verified header synchronization reaching height 80,639.
 - [x] Operator runtime validation confirmed synchronization progressing toward height 2,000,000.
 - [x] Wallet balance, receive, and send smoke test against the synchronized wallet.
-- [ ] Complete full header synchronization validation and packaging updates.
-- [x] Trusted checkpoint/header bootstrap for faster first launch (operator checkpoint pending independent Core verification).
+- [x] Full header synchronization and runtime validation against the
+  DigiByte-indexing electrs service.
+- [x] Trusted checkpoint/header bootstrap for faster first launch, with the
+  checkpoint source and header documented for independent DigiByte Core review.
+- [x] Self-contained x86_64 AppImage packaging with automatic native PoW
+  library compilation and bundling.
+- [x] Ubuntu 26 desktop integration, DigiByte launcher/icon installation, and
+  Wayland dock identity.
+- [ ] Build and publish a versioned AppImage release artifact.
 
 ---
-
-# Electrum - Lightweight Bitcoin client
-
-```
-Licence: MIT Licence
-Author: Thomas Voegtlin
-Language: Python (>= 3.10)
-Homepage: https://electrum.org/
-```
-
-[![Build Status](https://github.com/spesmilo/electrum/actions/workflows/builds.yml/badge.svg?branch=master)](https://github.com/spesmilo/electrum/actions/workflows/builds.yml)
-[![Test coverage statistics](https://coveralls.io/repos/github/spesmilo/electrum/badge.svg?branch=master)](https://coveralls.io/github/spesmilo/electrum?branch=master)
-[![Help translate Electrum online](https://d322cqt584bo4o.cloudfront.net/electrum/localized.svg)](https://crowdin.com/project/electrum)
-
-
-## Getting started
-
-_(If you've come here looking to simply run Electrum,
-[you may download it here](https://electrum.org/#download).)_
-
-Electrum itself is pure Python, and so are most of the required dependencies,
-but not everything. The following sections describe how to run from source, but here
-is a TL;DR:
-
-```
-$ sudo apt-get install libsecp256k1-dev
-$ ELECTRUM_ECC_DONT_COMPILE=1 python3 -m pip install --user ".[gui,crypto]"
-```
-
-### Not pure-python dependencies
-
-#### Qt GUI
-
-If you want to use the Qt interface, install the Qt dependencies:
-```
-$ sudo apt-get install python3-pyqt6
-```
-
-#### libsecp256k1
-
-For elliptic curve operations,
-[libsecp256k1](https://github.com/bitcoin-core/secp256k1)
-is a required dependency.
-
-If you "pip install" Electrum, by default libsecp will get compiled locally,
-as part of the `electrum-ecc` dependency. This can be opted-out of,
-by setting the `ELECTRUM_ECC_DONT_COMPILE=1` environment variable.
-For the compilation to work, besides a C compiler, you need at least:
-```
-$ sudo apt-get install automake libtool
-```
-If you opt out of the compilation, you need to provide libsecp in another way, e.g.:
-```
-$ sudo apt-get install libsecp256k1-dev
-```
-
-#### cryptography
-
-Due to the need for fast symmetric ciphers,
-[cryptography](https://github.com/pyca/cryptography) is required.
-Install from your package manager (or from pip):
-```
-$ sudo apt-get install python3-cryptography
-```
-
-#### hardware-wallet support
-
-If you would like hardware wallet support,
-[see this](https://github.com/spesmilo/electrum-docs/blob/master/hardware-linux.rst).
-
-
-### Running from tar.gz
-
-If you downloaded the official package (tar.gz), you can run
-Electrum from its root directory without installing it on your
-system; all the pure python dependencies are included in the 'packages'
-directory. To run Electrum from its root directory, just do:
-```
-$ ./run_electrum
-```
-
-You can also install Electrum on your system, by running this command:
-```
-$ sudo apt-get install python3-setuptools python3-pip
-$ python3 -m pip install --user .
-```
-
-This will download and install the Python dependencies used by
-Electrum instead of using the 'packages' directory.
-It will also place an executable named `electrum` in `~/.local/bin`,
-so make sure that is on your `PATH` variable.
-
-
-### Development version (git clone)
-
-_(For OS-specific instructions, see [here for Windows](contrib/build-wine/README_windows.md),
-and [for macOS](contrib/osx/README_macos.md))_
-
-Check out the code from GitHub:
-```
-$ git clone https://github.com/spesmilo/electrum.git
-$ cd electrum
-$ git submodule update --init
-```
-
-Run install (this should install dependencies):
-```
-$ python3 -m pip install --user -e .
-```
-
-Create translations (optional):
-```
-$ sudo apt-get install gettext
-$ ./contrib/locale/build_locale.sh electrum/locale/locale electrum/locale/locale
-```
-
-Finally, to start Electrum:
-```
-$ ./run_electrum
-```
-
-### Run tests
-
-Run unit tests with `pytest`:
-```
-$ pytest tests -v
-```
-(can be parallelized with `-n auto` option, using [`pytest-xdist`](https://github.com/pytest-dev/pytest-xdist) plugin)
-
-To run a single file, specify it directly like this:
-```
-$ pytest tests/test_bitcoin.py -v
-```
 
 ## Creating Binaries
 
