@@ -253,7 +253,7 @@ For an AppImage, pass its path so the launcher points to the downloaded file:
 
 ```bash
 ./contrib/install_desktop_entry.sh \
-  "$HOME/Downloads/electrum-<version>-x86_64.AppImage"
+  "$HOME/Downloads/electrum-digibyte-<version>-x86_64.AppImage"
 ```
 
 The script installs the DigiByte icon and creates a user-level launcher under
@@ -489,12 +489,12 @@ The first build downloads the pinned AppImage tooling, Python sources, and the
 official DigiByte Core source, so it can take time and requires internet access
 and several gigabytes of temporary disk space. Subsequent builds reuse caches.
 Use `ELECBUILD_NOCACHE=1` only when a clean Docker image is required. The final
-file is written to `dist/electrum-<version>-x86_64.AppImage` and can be run
+file is written to `dist/electrum-digibyte-<version>-x86_64.AppImage` and can be run
 without installing anything:
 
 ```bash
-chmod +x dist/electrum-*-x86_64.AppImage
-./dist/electrum-*-x86_64.AppImage
+chmod +x dist/electrum-digibyte-*-x86_64.AppImage
+./dist/electrum-digibyte-*-x86_64.AppImage
 ```
 
 

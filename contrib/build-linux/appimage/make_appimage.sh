@@ -24,8 +24,8 @@ PYTHON_VERSION=3.12.14
 PY_VER_MAJOR="3.12"  # as it appears in fs paths
 PKG2APPIMAGE_COMMIT="a9c85b7e61a3a883f4a35c41c5decb5af88b6b5d"
 
-VERSION=$(git describe --tags --dirty --always)
-APPIMAGE="$DISTDIR/electrum-$VERSION-x86_64.AppImage"
+VERSION=$("$CONTRIB"/print_electrum_version.py)
+APPIMAGE="$DISTDIR/electrum-digibyte-$VERSION-x86_64.AppImage"
 DIGIBYTE_POW_LIBRARY="$PROJECT_ROOT/.build/libdigibytepow.so"
 DIGIBYTE_CORE_CACHE="$CACHEDIR/digibyte-core"
 

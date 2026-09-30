@@ -8,7 +8,7 @@ applications_dir="$data_dir/applications"
 desktop_file="$applications_dir/electrum-digibyte.desktop"
 
 if [ "$#" -gt 1 ]; then
-    echo "Usage: $0 [path-to-electrum-digibyte.AppImage]" >&2
+    echo "Usage: $0 [path-to-electrum-digibyte-<version>-x86_64.AppImage]" >&2
     exit 2
 fi
 
