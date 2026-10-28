@@ -1,5 +1,6 @@
 import ctypes
 import os
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -16,7 +17,11 @@ def _load_library() -> ctypes.CDLL:
     candidates = []
     if path := os.environ.get('DIGIBYTE_POW_LIBRARY'):
         candidates.append(Path(path))
+    if getattr(sys, 'frozen', False):
+        candidates.append(Path(getattr(sys, '_MEIPASS', '')) / 'libdigibytepow-0.dll')
     candidates.append(project_dir / '.build' / 'libdigibytepow.so')
+    candidates.append(project_dir / '.build' / 'libdigibytepow-0.dll')
+    candidates.append(project_dir / 'libdigibytepow-0.dll')
 
     for path in candidates:
         if path.is_file():

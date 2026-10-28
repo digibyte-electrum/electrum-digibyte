@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 PYPKG="electrum"
 MAIN_SCRIPT="run_electrum"
 PROJECT_ROOT = "C:/electrum"
-ICONS_FILE=f"{PROJECT_ROOT}/{PYPKG}/gui/icons/electrum.ico"
+ICONS_FILE=f"{PROJECT_ROOT}/{PYPKG}/gui/icons/electrum_digibyte.ico"
 
 cmdline_name = os.environ.get("ELECTRUM_CMDLINE_NAME")
 if not cmdline_name:

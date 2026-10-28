@@ -30,6 +30,25 @@ similar system.
 
 3. The generated binaries are in `./contrib/build-wine/dist`.
 
+The DigiByte build automatically clones the official DigiByte Core source into
+the architecture-specific build cache and cross-compiles the native
+`libdigibytepow-0.dll`. The DLL is copied into the PyInstaller bundle, so users
+of the generated Windows executable do not need to install DigiByte Core or
+compile any native dependency themselves.
+
+The generated files are DigiByte-branded, for example:
+
+```
+dist/electrum-digibyte-4.8.2.exe
+dist/electrum-digibyte-4.8.2-portable.exe
+dist/electrum-digibyte-4.8.2-setup.exe
+```
+
+The first build requires internet access to download the Docker base image,
+Python dependencies, and the official DigiByte Core source. Subsequent builds
+reuse the cached source and dependencies. To build a 32-bit Windows target,
+set `WIN_ARCH=win32`; the default is the x86_64 `win64` target.
+
 
 
 ## Code Signing

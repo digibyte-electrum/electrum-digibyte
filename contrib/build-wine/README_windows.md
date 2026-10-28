@@ -9,8 +9,8 @@
 
 ### 1. Check out the code from GitHub:
 ```
-> git clone https://github.com/spesmilo/electrum.git
-> cd electrum
+> git clone --branch digi https://github.com/digibyte-electrum/electrum-digibyte.git
+> cd electrum-digibyte
 > git submodule update --init
 ```
 
@@ -61,6 +61,6 @@ for discussion)
 ### 3. Run electrum:
 
 ```
-> python3 ./run_electrum
+> python3 ./run_digibyte
 ```
 

@@ -25,6 +25,7 @@ RUN dpkg --add-architecture i386 && \
         cmake \
         pkgconf \
         mingw-w64 \
+        g++-mingw-w64 \
         mingw-w64-tools \
         autotools-dev \
         autoconf \

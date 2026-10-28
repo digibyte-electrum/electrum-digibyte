@@ -413,6 +413,10 @@ and unspent outputs. It does not store the endpoint in client configuration.
 
 Update this section as the client implementation advances:
 
+- [x] Windows build preparation (2026-10-28): DigiByte PoW DLL cross-compilation,
+  PyInstaller bundling, DigiByte installer branding, icons, shortcuts, and the
+  `dgb:` URI scheme.
+
 - [x] DigiByte client network foundation and local electrs smoke test.
 - [x] Wallet address-format primitives and BIP44 path compatibility.
 - [x] Full standard wallet creation and restore compatibility.
@@ -444,6 +448,24 @@ Update this section as the client implementation advances:
 - [macOS](contrib/osx/README.md)
 - [Windows](contrib/build-wine/README.md)
 - [Android](contrib/android/Readme.md)
+
+### Building Windows binaries
+
+The Windows build runs in Docker on an Ubuntu amd64 host. It automatically
+downloads the official DigiByte Core source, cross-compiles
+`libdigibytepow-0.dll`, and embeds the DLL and DigiByte icon in the PyInstaller
+executables and NSIS installer. Docker is only a build dependency; end users
+receive self-contained Windows binaries.
+
+```bash
+./contrib/build-wine/build.sh
+```
+
+The output is written to `contrib/build-wine/dist/` as versioned files such as
+`electrum-digibyte-4.8.2.exe`, `electrum-digibyte-4.8.2-portable.exe`, and
+`electrum-digibyte-4.8.2-setup.exe`. See
+[`contrib/build-wine/README.md`](contrib/build-wine/README.md) for Docker
+installation and reproducible-build details.
 
 ### Building the AppImage from source
 

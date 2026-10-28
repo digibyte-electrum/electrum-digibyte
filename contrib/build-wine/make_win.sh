@@ -43,6 +43,16 @@ rm "$here"/dist/* -rf
 
 mkdir -p "$CACHEDIR" "$DLL_TARGET_DIR" "$PIP_CACHE_DIR"
 
+DIGIBYTE_CORE_CACHE="$CACHEDIR/digibyte-core"
+if [ ! -d "$DIGIBYTE_CORE_CACHE/src/crypto" ]; then
+    rm -rf "$DIGIBYTE_CORE_CACHE"
+    git clone --depth 1 https://github.com/DigiByte-Core/digibyte.git "$DIGIBYTE_CORE_CACHE"
+fi
+DIGIBYTE_CORE_DIR="$DIGIBYTE_CORE_CACHE" \
+GCC_TRIPLET_HOST="$GCC_TRIPLET_HOST" \
+DIGIBYTE_POW_OUTPUT="$DLL_TARGET_DIR/libdigibytepow-0.dll" \
+    "$CONTRIB/build_digibyte_pow.sh" || fail "Could not build DigiByte PoW DLL"
+
 if ls "$DLL_TARGET_DIR"/libsecp256k1-*.dll 1> /dev/null 2>&1; then
     info "libsecp256k1 already built, skipping"
 else
