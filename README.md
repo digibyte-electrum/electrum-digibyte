@@ -416,6 +416,9 @@ Update this section as the client implementation advances:
 - [x] Windows build preparation (2026-10-28): DigiByte PoW DLL cross-compilation,
   PyInstaller bundling, DigiByte installer branding, icons, shortcuts, and the
   `dgb:` URI scheme.
+- [x] Test release published (2026-10-28): tag `dgb-v4.8.2-test2` pushed to
+  `origin/digi`, with Linux AppImage and Windows executable, portable, and NSIS
+  installer artifacts available from the [GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test2).
 
 - [x] DigiByte client network foundation and local electrs smoke test.
 - [x] Wallet address-format primitives and BIP44 path compatibility.
@@ -435,7 +438,8 @@ Update this section as the client implementation advances:
   library compilation and bundling.
 - [x] Ubuntu 26 desktop integration, DigiByte launcher/icon installation, and
   Wayland dock identity.
-- [ ] Build and publish a versioned AppImage release artifact.
+- [x] Build and publish a versioned AppImage release artifact in the
+  [dgb-v4.8.2-test2 release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test2).
 
 ---
 
@@ -465,7 +469,8 @@ The output is written to `contrib/build-wine/dist/` as versioned files such as
 `electrum-digibyte-4.8.2.exe`, `electrum-digibyte-4.8.2-portable.exe`, and
 `electrum-digibyte-4.8.2-setup.exe`. See
 [`contrib/build-wine/README.md`](contrib/build-wine/README.md) for Docker
-installation and reproducible-build details.
+installation and reproducible-build details. Prebuilt test artifacts are
+available in the [current DigiByte release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test2).
 
 ### Building the AppImage from source
 
