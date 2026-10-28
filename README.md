@@ -6,13 +6,25 @@ This repository is the DigiByte client based on Electrum. It is being built
 incrementally and keeps the upstream Electrum sources available through the
 `upstream` Git remote.
 
-## Current milestone — 2026-09-30
+## Current milestone — 2026-10-28
 
-`DGB-ELECTRUM-PACKAGING-DESKTOP-INTEGRATION` — DigiByte wallet runtime,
-branding, Wayland desktop integration, and self-contained AppImage packaging.
+`DGB-ELECTRUM-TEST-RELEASE-2` — DigiByte wallet validation, native PoW
+packaging, Windows support, and public test artifacts.
 
 Completed so far:
 
+- Receiving, balance updates, and sending DigiByte were validated against a
+  DigiByte-indexing Electrum server.
+- Header synchronization was accelerated with official DigiByte checkpoint
+  bootstrap, native batched PoW verification, and incremental difficulty
+  context handling.
+- A GUI crash caused by modern DigiByte block heights exceeding the legacy
+  UTXO ShortID field was fixed with a readable fallback identifier.
+- The Terms of Use dialog now uses one correctly sized DigiByte logo and a
+  readable Electrum DigiByte wordmark.
+- The Linux AppImage bundles the native DigiByte PoW validator and is
+  published together with Windows executable, portable, and NSIS installer
+  artifacts in the [dgb-v4.8.2-test2 release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test2).
 - DigiByte mainnet parameters and address prefixes are defined.
 - The client default network is DigiByte.
 - The DigiByte electrs TCP port is `50011` (`50012` for TLS).
@@ -60,6 +72,17 @@ Development and operator testing are currently being performed on **Ubuntu 26
 (x86_64/amd64)**. This project is an active DigiByte adaptation of upstream
 Electrum and is not presented as an official DigiByte release.
 
+### 2026-10-28 — Test release and native Windows packaging
+
+- The official DigiByte Core source is cross-compiled into
+  `libdigibytepow-0.dll` during the Docker Windows build.
+- PyInstaller and NSIS package the DLL, DigiByte icon, branded shortcuts, and
+  the `dgb:` URI scheme into self-contained Windows artifacts.
+- The `dgb-v4.8.2-test2` tag and prerelease publish the Linux AppImage and
+  Windows executable, portable, and installer artifacts.
+- The Terms of Use branding layout was corrected to remove the duplicated logo
+  and enlarge the wordmark text.
+
 ### 2026-09-30 — Ubuntu 26 and Wayland integration
 
 - The Wayland application identity is explicitly set to
@@ -91,9 +114,8 @@ Electrum and is not presented as an official DigiByte release.
 - Large DigiByte UTXOs now use a readable fallback identifier when the compact
   ShortID format cannot represent their height.
 
-The AppImage build pipeline is implemented, but an AppImage file is generated
-locally only when the maintainer runs the documented build command. This
-repository does not claim that a binary release has already been produced.
+The current test artifacts are available from the
+[dgb-v4.8.2-test2 GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test2).
 
 ## Building the DigiByte wallet stack
 
