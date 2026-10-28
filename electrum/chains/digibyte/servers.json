@@ -1,1 +1,7 @@
-{}
+{
+    "electrum-digibyte.ddns.net": {
+        "pruning": "-",
+        "t": "50011",
+        "version": "1.4"
+    }
+}

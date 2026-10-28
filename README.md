@@ -17,7 +17,8 @@ Completed so far:
 - The client default network is DigiByte.
 - The DigiByte electrs TCP port is `50011` (`50012` for TLS).
 - POSIX client data is stored below `$HOME/.electrum-digibyte`.
-- Production `servers.json` is intentionally empty. Users select their own
+- The DigiByte `servers.json` includes the public default endpoint
+  `electrum-digibyte.ddns.net:50011:t`. Users can select another DigiByte
   electrs server; no private LAN endpoint is embedded in the client.
 - A persistent `run_digibyte` launcher is provided.
 - The existing Qt GUI launches with DigiByte selected and uses the DigiByte
@@ -36,11 +37,11 @@ may be used if it indexes DigiByte and implements the required DigiByte network
 behavior. A standard Bitcoin electrum server is not compatible, even if it is
 reachable on the same port.
 
-The DigiByte build intentionally does not embed a public server list or a
-private operator endpoint. If no server has been configured yet, the GUI opens
-disconnected and uses the harmless placeholder `localhost:1:s`. Select a
-DigiByte-indexing server in the Network dialog, or start the client with an
-explicit endpoint:
+The DigiByte build includes `electrum-digibyte.ddns.net:50011:t` as its default
+public endpoint. Users can select another DigiByte-indexing server in the
+Network dialog or start the client with an explicit endpoint. If the default
+server list is unavailable or empty, the GUI opens disconnected and uses the
+harmless placeholder `localhost:1:s`:
 
 ```bash
 ./run_digibyte --digibyte -s <electrs-host>:50011:t gui
