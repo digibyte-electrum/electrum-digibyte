@@ -728,6 +728,14 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
                 self.default_server = ServerAddr.from_str("localhost:1:s")
             else:
                 self.default_server = pick_random_server(allowed_protocols=self._allowed_protocols)
+                if self.default_server is None:
+                    # DigiByte deliberately ships without hardcoded public
+                    # servers. Still allow the GUI to start so the user can
+                    # select their own DigiByte-indexing Electrum server.
+                    self.logger.warning(
+                        'no default Electrum server is configured; '
+                        'falling back to localhost:1:s until one is selected.')
+                    self.default_server = ServerAddr.from_str("localhost:1:s")
         assert isinstance(self.default_server, ServerAddr), f"invalid type for default_server: {self.default_server!r}"
 
     def _set_proxy(self, proxy: ProxySettings):

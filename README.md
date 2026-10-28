@@ -36,6 +36,23 @@ may be used if it indexes DigiByte and implements the required DigiByte network
 behavior. A standard Bitcoin electrum server is not compatible, even if it is
 reachable on the same port.
 
+The DigiByte build intentionally does not embed a public server list or a
+private operator endpoint. If no server has been configured yet, the GUI opens
+disconnected and uses the harmless placeholder `localhost:1:s`. Select a
+DigiByte-indexing server in the Network dialog, or start the client with an
+explicit endpoint:
+
+```bash
+./run_digibyte --digibyte -s <electrs-host>:50011:t gui
+```
+
+The AppImage accepts the same arguments:
+
+```bash
+./electrum-digibyte-4.8.2-x86_64.AppImage \
+  --digibyte -s <electrs-host>:50011:t gui
+```
+
 ## Development status and milestones
 
 Development and operator testing are currently being performed on **Ubuntu 26
