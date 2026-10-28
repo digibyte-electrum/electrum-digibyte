@@ -3,6 +3,7 @@ include README.md
 include electrum.desktop
 include electrum-digibyte.desktop
 include electrum/gui/icons/electrum_digibyte.svg
+include electrum/gui/icons/electrum_digibyte_logo.svg
 include *.py
 include run_electrum
 include org.electrum.electrum.metainfo.xml

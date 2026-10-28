@@ -19,7 +19,7 @@ class QETermsOfUseWizard(TermsOfUseWizard, QEAbstractWizard):
     def __init__(self, config: 'SimpleConfig', app: 'QElectrumApplication'):
         TermsOfUseWizard.__init__(self, config)
         QEAbstractWizard.__init__(self, config, app)
-        self.window_title = _('Terms of Use')
+        self.window_title = _('Electrum DigiByte Terms of Use')
         self.finish_label = _('I Accept')
         self.title.setVisible(False)
         # self.window().setMinimumHeight(565)  # Enough to show the whole text without scrolling
@@ -33,12 +33,12 @@ class QETermsOfUseWizard(TermsOfUseWizard, QEAbstractWizard):
 class WCTermsOfUseScreen(WizardComponent):
     def __init__(self, parent, wizard):
         WizardComponent.__init__(self, parent, wizard, title='')
-        self.wizard_title = _('Electrum Terms of Use')
+        self.wizard_title = _('Electrum DigiByte Terms of Use')
         self.img_label = QLabel()
-        pixmap = QPixmap(icon_path('electrum_darkblue_1.png'))
+        pixmap = QPixmap(icon_path('electrum_digibyte.svg'))
         self.img_label.setPixmap(pixmap)
         self.img_label2 = QLabel()
-        pixmap = QPixmap(icon_path('electrum_text.png'))
+        pixmap = QPixmap(icon_path('electrum_digibyte_logo.svg'))
         self.img_label2.setPixmap(pixmap)
         hbox_img = QHBoxLayout()
         hbox_img.addStretch(1)
