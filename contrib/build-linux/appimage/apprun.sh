@@ -9,4 +9,4 @@ export PATH="${APPDIR}/usr/bin:${PATH}"
 export LDFLAGS="-L${APPDIR}/usr/lib/x86_64-linux-gnu -L${APPDIR}/usr/lib"
 export DIGIBYTE_POW_LIBRARY="${APPDIR}/usr/lib/libdigibytepow.so"
 
-exec "${APPDIR}/usr/bin/python3" -s "${APPDIR}/usr/bin/electrum" "$@"
+exec "${APPDIR}/usr/bin/python3" -s "${APPDIR}/usr/bin/electrum" --digibyte "$@"

@@ -38,7 +38,7 @@ class WCTermsOfUseScreen(WizardComponent):
         pixmap = QPixmap(icon_path('electrum_digibyte.svg')).scaled(
             120, 120,
             aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
-            mode=Qt.TransformationMode.SmoothTransformation,
+            transformMode=Qt.TransformationMode.SmoothTransformation,
         )
         self.img_label.setPixmap(pixmap)
 
