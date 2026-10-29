@@ -76,7 +76,10 @@ ca_path = certifi.where()
 BUCKET_NAME_OF_ONION_SERVERS = 'onion'
 
 KNOWN_ELEC_PROTOCOL_TRANSPORTS = {'t', 's'}
-PREFERRED_NETWORK_PROTOCOL = 's'
+# DigiByte electrs deployments expose the standard TCP service on port 50011.
+# Keep TCP as the default so the bundled DigiByte server list is usable without
+# requiring a TLS endpoint on port 50012.
+PREFERRED_NETWORK_PROTOCOL = 't'
 assert PREFERRED_NETWORK_PROTOCOL in KNOWN_ELEC_PROTOCOL_TRANSPORTS
 
 MAX_NUM_HEADERS_PER_REQUEST = 2016
