@@ -8,8 +8,8 @@ incrementally and keeps the upstream Electrum sources available through the
 
 ## Current milestone — 2026-10-30
 
-`DGB-ELECTRUM-TEST-RELEASE-4` — DigiByte transport defaults, branded
-self-contained binaries, and the public test4 release.
+`DGB-ELECTRUM-TEST-RELEASE-6` — native DigiByte PoW support in the Android
+package and the latest cross-platform test release.
 
 Completed so far:
 
@@ -23,8 +23,12 @@ Completed so far:
 - The Terms of Use dialog now uses one correctly sized DigiByte logo and a
   readable Electrum DigiByte wordmark.
 - The Linux AppImage bundles the native DigiByte PoW validator and is
-  published together with Windows executable, portable, and NSIS installer
-  artifacts in the [dgb-v4.8.2-test4 release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test4).
+  published together with the Android APK, Windows executable, portable, and
+  NSIS installer artifacts in the
+  [dgb-v4.8.2-test6 release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test6).
+- The Android ARM64 APK now bundles `libdigibytepow.so`; the Android
+  python-for-android recipe is pinned to the DigiByte Core source used for the
+  desktop native validator.
 - DigiByte mainnet parameters and address prefixes are defined.
 - The client default network is DigiByte.
 - The DigiByte electrs TCP port is `50011` (`50012` for TLS).
@@ -87,6 +91,17 @@ Electrum and is not presented as an official DigiByte release.
 - The release is available from the
   [dgb-v4.8.2-test4 GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test4).
 
+### 2026-10-30 — Test6 release and Android native PoW packaging
+
+- Added a pinned python-for-android recipe that compiles the DigiByte PoW
+  adapter for ARM64 Android.
+- The Android APK bundles `libdigibytepow.so` and resolves it through the
+  Android native library loader.
+- Rebuilt the Linux AppImage and Windows executable, portable, and NSIS
+  installer artifacts from the same source commit.
+- The latest downloadable artifacts are published in the
+  [dgb-v4.8.2-test6 GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test6).
+
 ### 2026-10-28 — Test release and native Windows packaging
 
 - The official DigiByte Core source is cross-compiled into
@@ -130,7 +145,7 @@ Electrum and is not presented as an official DigiByte release.
   ShortID format cannot represent their height.
 
 The current test artifacts are available from the
-[dgb-v4.8.2-test4 GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test4).
+[dgb-v4.8.2-test6 GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test6).
 
 ## Building the DigiByte wallet stack
 
@@ -453,6 +468,10 @@ Update this section as the client implementation advances:
 - [x] Windows build preparation (2026-10-28): DigiByte PoW DLL cross-compilation,
   PyInstaller bundling, DigiByte installer branding, icons, shortcuts, and the
   `dgb:` URI scheme.
+- [x] Test6 release published (2026-10-30): tag `dgb-v4.8.2-test6` pushed to
+  origin and marked as the latest GitHub release, with Android ARM64, Linux
+  AppImage, and Windows executable, portable, and NSIS installer artifacts
+  available from the [GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test6).
 - [x] Test4 release published (2026-10-30): tag `dgb-v4.8.2-test4` pushed to
   `origin/digi`, with Linux AppImage and Windows executable, portable, and NSIS
   installer artifacts available from the [GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test4).
