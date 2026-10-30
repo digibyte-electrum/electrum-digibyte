@@ -112,31 +112,31 @@ class SettingsDialog(QDialog, QtEventListener):
                 self.app.update_status_signal.emit()
         nz.valueChanged.connect(on_nz)
 
-        # lightning
-        trampoline_cb = checkbox_from_configvar(self.config.cv.LIGHTNING_USE_GOSSIP)
-        trampoline_cb.setChecked(not self.config.LIGHTNING_USE_GOSSIP)
+        trampoline_cb = None
+        if constants.net.NET_NAME != 'digibyte':
+            trampoline_cb = checkbox_from_configvar(self.config.cv.LIGHTNING_USE_GOSSIP)
+            trampoline_cb.setChecked(not self.config.LIGHTNING_USE_GOSSIP)
 
-        def on_trampoline_checked(_x):
-            use_trampoline = trampoline_cb.isChecked()
-            if not use_trampoline:
-                if not window.question('\n'.join([
-                        _("Are you sure you want to disable trampoline?"),
-                        _("Without this option, Electrum will need to sync with the Lightning network on every start."),
-                        _("This may impact the reliability of your payments."),
-                ]), parent=self):
-                    trampoline_cb.setCheckState(Qt.CheckState.Checked)
-                    return
-            self.config.LIGHTNING_USE_GOSSIP = not use_trampoline
-            if self.network:
+            def on_trampoline_checked(_x):
+                use_trampoline = trampoline_cb.isChecked()
                 if not use_trampoline:
-                    self.network.start_gossip()
-                else:
-                    self.network.run_from_another_thread(
-                        self.network.stop_gossip())
-            util.trigger_callback('ln_gossip_sync_progress')
-            # FIXME: update all wallet windows
-            util.trigger_callback('channels_updated', self.wallet)
-        trampoline_cb.stateChanged.connect(on_trampoline_checked)
+                    if not window.question('\n'.join([
+                            _("Are you sure you want to disable trampoline?"),
+                            _("Without this option, Electrum will need to sync with the Lightning network on every start."),
+                            _("This may impact the reliability of your payments."),
+                    ]), parent=self):
+                        trampoline_cb.setCheckState(Qt.CheckState.Checked)
+                        return
+                self.config.LIGHTNING_USE_GOSSIP = not use_trampoline
+                if self.network:
+                    if not use_trampoline:
+                        self.network.start_gossip()
+                    else:
+                        self.network.run_from_another_thread(
+                            self.network.stop_gossip())
+                util.trigger_callback('ln_gossip_sync_progress')
+                util.trigger_callback('channels_updated', self.wallet)
+            trampoline_cb.stateChanged.connect(on_trampoline_checked)
 
 
         alias_label = HelpLabel.from_configvar(self.config.cv.OPENALIAS_ID)
@@ -146,17 +146,19 @@ class SettingsDialog(QDialog, QtEventListener):
         self.alias_e.editingFinished.connect(self.on_alias_edit)
 
 
-        msat_cb = checkbox_from_configvar(self.config.cv.BTC_AMOUNTS_PREC_POST_SAT)
-        msat_cb.setChecked(self.config.BTC_AMOUNTS_PREC_POST_SAT > 0)
+        msat_cb = None
+        if constants.net.NET_NAME != 'digibyte':
+            msat_cb = checkbox_from_configvar(self.config.cv.BTC_AMOUNTS_PREC_POST_SAT)
+            msat_cb.setChecked(self.config.BTC_AMOUNTS_PREC_POST_SAT > 0)
 
-        def on_msat_checked(_x):
-            prec = 3 if msat_cb.isChecked() else 0
-            if self.config.amt_precision_post_satoshi != prec:
-                self.config.amt_precision_post_satoshi = prec
-                self.config.BTC_AMOUNTS_PREC_POST_SAT = prec
-                self.app.refresh_tabs_signal.emit()
+            def on_msat_checked(_x):
+                prec = 3 if msat_cb.isChecked() else 0
+                if self.config.amt_precision_post_satoshi != prec:
+                    self.config.amt_precision_post_satoshi = prec
+                    self.config.BTC_AMOUNTS_PREC_POST_SAT = prec
+                    self.app.refresh_tabs_signal.emit()
 
-        msat_cb.stateChanged.connect(on_msat_checked)
+            msat_cb.stateChanged.connect(on_msat_checked)
 
         # units
         units = (['DGB', 'mDGB', 'bits', 'sat']
@@ -360,10 +362,12 @@ class SettingsDialog(QDialog, QtEventListener):
         units_widgets = []
         units_widgets.append((unit_label, unit_combo))
         units_widgets.append((nz_label, nz))
-        units_widgets.append((msat_cb, None))
+        if msat_cb is not None:
+            units_widgets.append((msat_cb, None))
         units_widgets.append((thousandsep_cb, None))
         lightning_widgets = []
-        lightning_widgets.append((trampoline_cb, None))
+        if trampoline_cb is not None:
+            lightning_widgets.append((trampoline_cb, None))
         fiat_widgets = []
         fiat_widgets.append((QLabel(_('Fiat currency')), ccy_combo))
         fiat_widgets.append((QLabel(_('Source')), ex_combo))
@@ -379,9 +383,10 @@ class SettingsDialog(QDialog, QtEventListener):
             (gui_widgets, _('Appearance')),
             (units_widgets, _('Units')),
             (fiat_widgets, _('Fiat')),
-            (lightning_widgets, _('Lightning')),
             (misc_widgets, _('Misc')),
         ]
+        if lightning_widgets:
+            tabs_info.insert(3, (lightning_widgets, _('Lightning')))
         for widgets, name in tabs_info:
             tab = QWidget()
             tab_vbox = QVBoxLayout(tab)

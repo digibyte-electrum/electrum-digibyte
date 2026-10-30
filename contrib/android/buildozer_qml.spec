@@ -1,13 +1,13 @@
 [app]
 
 # (str) Title of your application
-title = Electrum
+title = DigiByte Electrum Wallet
 
 # (str) Package name
-package.name = Electrum
+package.name = wallet
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.electrum
+package.domain = org.digibyte.electrum
 
 # (str) Source code where the main.py live
 source.dir = .

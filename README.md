@@ -6,10 +6,10 @@ This repository is the DigiByte client based on Electrum. It is being built
 incrementally and keeps the upstream Electrum sources available through the
 `upstream` Git remote.
 
-## Current milestone — 2026-10-28
+## Current milestone — 2026-10-30
 
-`DGB-ELECTRUM-TEST-RELEASE-2` — DigiByte wallet validation, native PoW
-packaging, Windows support, and public test artifacts.
+`DGB-ELECTRUM-TEST-RELEASE-4` — DigiByte transport defaults, branded
+self-contained binaries, and the public test4 release.
 
 Completed so far:
 
@@ -24,7 +24,7 @@ Completed so far:
   readable Electrum DigiByte wordmark.
 - The Linux AppImage bundles the native DigiByte PoW validator and is
   published together with Windows executable, portable, and NSIS installer
-  artifacts in the [dgb-v4.8.2-test2 release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test2).
+  artifacts in the [dgb-v4.8.2-test4 release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test4).
 - DigiByte mainnet parameters and address prefixes are defined.
 - The client default network is DigiByte.
 - The DigiByte electrs TCP port is `50011` (`50012` for TLS).
@@ -41,6 +41,11 @@ Completed so far:
   daemon RPC and the GUI remain responsive.
 - The DigiByte difficulty context is extended incrementally; live synchronization
   no longer rereads the complete header file for every new block.
+- The default Electrum transport is TCP (`:50011:t`), matching the bundled
+  DigiByte server list and modified electrs deployments; TLS remains available
+  on `:50012:s` when explicitly configured.
+- The Terms of Use and wallet setup branding use one DigiByte Electrum logo,
+  with the Bitcoin artwork removed from the DigiByte flow.
 
 The wallet must connect to a running Electrum protocol server that indexes the
 DigiByte blockchain. The recommended endpoint is the DigiByte-modified electrs
@@ -72,13 +77,23 @@ Development and operator testing are currently being performed on **Ubuntu 26
 (x86_64/amd64)**. This project is an active DigiByte adaptation of upstream
 Electrum and is not presented as an official DigiByte release.
 
+### 2026-10-30 — Test4 release and DigiByte transport correction
+
+- The default server protocol now prefers DigiByte electrs TCP on port `50011`,
+  preventing the client from selecting TLS on `50012` when only the standard
+  TCP service is available.
+- Release `dgb-v4.8.2-test4` contains the corrected Linux AppImage and Windows
+  executable, portable, and NSIS installer artifacts.
+- The release is available from the
+  [dgb-v4.8.2-test4 GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test4).
+
 ### 2026-10-28 — Test release and native Windows packaging
 
 - The official DigiByte Core source is cross-compiled into
   `libdigibytepow-0.dll` during the Docker Windows build.
 - PyInstaller and NSIS package the DLL, DigiByte icon, branded shortcuts, and
   the `dgb:` URI scheme into self-contained Windows artifacts.
-- The `dgb-v4.8.2-test2` tag and prerelease publish the Linux AppImage and
+- The `dgb-v4.8.2-test2` tag and prerelease published the Linux AppImage and
   Windows executable, portable, and installer artifacts.
 - The Terms of Use branding layout was corrected to remove the duplicated logo
   and enlarge the wordmark text.
@@ -115,7 +130,7 @@ Electrum and is not presented as an official DigiByte release.
   ShortID format cannot represent their height.
 
 The current test artifacts are available from the
-[dgb-v4.8.2-test2 GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test2).
+[dgb-v4.8.2-test4 GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test4).
 
 ## Building the DigiByte wallet stack
 
@@ -438,9 +453,9 @@ Update this section as the client implementation advances:
 - [x] Windows build preparation (2026-10-28): DigiByte PoW DLL cross-compilation,
   PyInstaller bundling, DigiByte installer branding, icons, shortcuts, and the
   `dgb:` URI scheme.
-- [x] Test release published (2026-10-28): tag `dgb-v4.8.2-test2` pushed to
+- [x] Test4 release published (2026-10-30): tag `dgb-v4.8.2-test4` pushed to
   `origin/digi`, with Linux AppImage and Windows executable, portable, and NSIS
-  installer artifacts available from the [GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test2).
+  installer artifacts available from the [GitHub release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test4).
 
 - [x] DigiByte client network foundation and local electrs smoke test.
 - [x] Wallet address-format primitives and BIP44 path compatibility.
@@ -460,8 +475,8 @@ Update this section as the client implementation advances:
   library compilation and bundling.
 - [x] Ubuntu 26 desktop integration, DigiByte launcher/icon installation, and
   Wayland dock identity.
-- [x] Build and publish a versioned AppImage release artifact in the
-  [dgb-v4.8.2-test2 release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test2).
+- [x] Build and publish versioned Linux and Windows artifacts in the
+  [dgb-v4.8.2-test4 release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test4).
 
 ---
 
@@ -492,7 +507,7 @@ The output is written to `contrib/build-wine/dist/` as versioned files such as
 `electrum-digibyte-4.8.2-setup.exe`. See
 [`contrib/build-wine/README.md`](contrib/build-wine/README.md) for Docker
 installation and reproducible-build details. Prebuilt test artifacts are
-available in the [current DigiByte release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test2).
+available in the [current DigiByte release](https://github.com/digibyte-electrum/electrum-digibyte/releases/tag/dgb-v4.8.2-test4).
 
 ### Building the AppImage from source
 

@@ -1052,6 +1052,9 @@ _block_explorer_default_api_loc = {'tx': 'tx/', 'addr': 'address/'}
 
 def block_explorer_info():
     from . import constants
+    if constants.net.NET_NAME == "digibyte":
+        return {'DigiExplorer.info': ('https://digiexplorer.info/',
+                                      {'tx': 'tx/', 'addr': 'address/'})}
     if constants.net.NET_NAME == "testnet":
         return testnet_block_explorers
     elif constants.net.NET_NAME == "testnet4":
@@ -1065,8 +1068,12 @@ def block_explorer(config: 'SimpleConfig') -> Optional[str]:
     """Returns name of selected block explorer,
     or None if a custom one (not among hardcoded ones) is configured.
     """
+    from . import constants
     if config.BLOCK_EXPLORER_CUSTOM is not None:
         return None
+    if constants.net.NET_NAME == "digibyte":
+        if config.BLOCK_EXPLORER not in block_explorer_info():
+            return 'DigiExplorer.info'
     be_key = config.BLOCK_EXPLORER
     be_tuple = block_explorer_info().get(be_key)
     if be_tuple is None:

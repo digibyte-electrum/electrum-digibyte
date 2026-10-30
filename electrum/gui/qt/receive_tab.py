@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (QLabel, QVBoxLayout, QGridLayout, QTextEdit,
                              QHBoxLayout, QPushButton, QWidget, QSizePolicy, QFrame)
 
 from electrum.i18n import _
+from electrum import constants
 from electrum.util import InvoiceError, ChoiceItem
 from electrum.invoices import pr_expiration_values
 from electrum.logging import Logger
@@ -77,13 +78,15 @@ class ReceiveTab(QWidget, MessageBoxMixin, Logger):
         self.create_lightning_invoice_button = QPushButton(_('Lightning'))
         self.create_lightning_invoice_button.setIcon(read_QIcon("lightning.png"))
         self.create_lightning_invoice_button.clicked.connect(lambda: self.create_invoice(True))
-        self.create_lightning_invoice_button.setVisible(self.wallet.has_lightning())
+        self.create_lightning_invoice_button.setVisible(
+            self.wallet.has_lightning() and constants.net.NET_NAME != 'digibyte')
 
         self.receive_buttons = buttons = QHBoxLayout()
         buttons.addWidget(self.clear_invoice_button)
         buttons.addStretch(1)
         buttons.addWidget(self.create_onchain_invoice_button)
-        buttons.addWidget(self.create_lightning_invoice_button)
+        if constants.net.NET_NAME != 'digibyte':
+            buttons.addWidget(self.create_lightning_invoice_button)
         grid.addLayout(buttons, 4, 1, 1, -1)
 
         self.receive_e = QTextEdit()

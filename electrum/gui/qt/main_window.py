@@ -1854,8 +1854,10 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
         sb.addPermanentWidget(StatusBarButton(read_QIcon("preferences.png"), _("Preferences"), self.settings_dialog, sb_height))
         self.seed_button = StatusBarButton(read_QIcon("seed.png"), _("Seed"), self.show_seed_dialog, sb_height)
         sb.addPermanentWidget(self.seed_button)
-        self.lightning_button = StatusBarButton(read_QIcon("lightning.png"), _("Lightning Network"), self.gui_object.show_lightning_dialog, sb_height)
-        sb.addPermanentWidget(self.lightning_button)
+        self.lightning_button = None
+        if constants.net.NET_NAME != 'digibyte':
+            self.lightning_button = StatusBarButton(read_QIcon("lightning.png"), _("Lightning Network"), self.gui_object.show_lightning_dialog, sb_height)
+            sb.addPermanentWidget(self.lightning_button)
         self.update_lightning_icon()
         self.status_button = None
         self.tor_button = None
@@ -1908,6 +1910,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
         self.coincontrol_sb.setVisible(True)
 
     def update_lightning_icon(self):
+        if self.lightning_button is None:
+            return
         if not self.wallet.has_lightning():
             self.lightning_button.setVisible(False)
             return
