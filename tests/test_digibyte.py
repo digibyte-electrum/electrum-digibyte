@@ -76,7 +76,13 @@ def test_digibyte_protocol_server_defaults(monkeypatch):
     monkeypatch.setattr(constants, "net", constants.DigiByteMainnet)
     parsed = parse_servers([['server.version', 'example.test', ['t']]])
 
-    assert constants.DigiByteMainnet.DEFAULT_SERVERS == {}
+    assert constants.DigiByteMainnet.DEFAULT_SERVERS == {
+        'electrum-digibyte.ddns.net': {
+            'pruning': '-',
+            't': '50011',
+            'version': '1.4',
+        },
+    }
     assert parsed['example.test']['t'] == '50011'
 
 
