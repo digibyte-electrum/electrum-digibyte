@@ -376,7 +376,11 @@ class Blockchain(Logger):
         chain_id = self.get_id()
         with parent.bc_mgr.blockchains_lock:
             parent.bc_mgr.blockchains[chain_id] = self
-        return self
+        # save_header() can promote this branch immediately. In that case the
+        # old parent object now contains the newly saved fork header, while
+        # ``self`` contains the former best chain. Return the chain that
+        # actually contains ``header`` to the interface caller.
+        return parent if self.forkpoint != forkpoint else self
 
     @with_lock
     def height(self) -> int:
@@ -543,6 +547,11 @@ class Blockchain(Logger):
         self.forkpoint, parent.forkpoint = parent.forkpoint, self.forkpoint
         self._forkpoint_hash, parent._forkpoint_hash = parent._forkpoint_hash, hash_raw_header(parent_data[:HEADER_SIZE])
         self._prev_hash, parent._prev_hash = parent._prev_hash, self._prev_hash
+        # Both objects now refer to different header files than before the
+        # swap.  Any cached DigiByte difficulty history or chainwork therefore
+        # belongs to the old layout and must not be reused.
+        self._reset_digibyte_caches()
+        parent._reset_digibyte_caches()
         # parent's new name
         os.replace(child_old_name, parent.path())
         self.update_size()
@@ -554,6 +563,13 @@ class Blockchain(Logger):
         blockchains[self.get_id()] = self
         blockchains[parent.get_id()] = parent
         return True
+
+    def _reset_digibyte_caches(self) -> None:
+        if constants.net.NET_NAME == 'digibyte':
+            self._digibyte_chainwork_cache = {
+                constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT: 0,
+            }
+            self._digibyte_context = None
 
     def get_id(self) -> str:
         return self._forkpoint_hash
@@ -822,17 +838,30 @@ class Blockchain(Logger):
         if end <= start:
             return []
         if self.parent is not None:
-            return [self.read_header(height) for height in range(start, end)]
+            headers = [self.read_header(height) for height in range(start, end)]
+            if any(header is None for header in headers):
+                missing = next(height for height, header in zip(range(start, end), headers)
+                               if header is None)
+                raise MissingHeader(missing)
+            return headers
         with open(self.path(), 'rb') as f:
             f.seek(start * HEADER_SIZE)
             raw = f.read((end - start) * HEADER_SIZE)
-        return [deserialize_header(raw[offset:offset + HEADER_SIZE], start + offset // HEADER_SIZE)
-                for offset in range(0, len(raw), HEADER_SIZE)
-                if raw[offset:offset + HEADER_SIZE] != bytes(HEADER_SIZE)]
+        if len(raw) != (end - start) * HEADER_SIZE:
+            raise MissingHeader(start + len(raw) // HEADER_SIZE)
+        headers = []
+        for offset in range(0, len(raw), HEADER_SIZE):
+            chunk = raw[offset:offset + HEADER_SIZE]
+            if chunk == bytes(HEADER_SIZE):
+                raise MissingHeader(start + offset // HEADER_SIZE)
+            headers.append(deserialize_header(chunk, start + offset // HEADER_SIZE))
+        return headers
 
     @staticmethod
     def _compress_digibyte_context(headers: list[dict]) -> list[dict]:
         from .digibyte_difficulty import algorithm
+        if any(header is None for header in headers):
+            raise MissingHeader(next(i for i, header in enumerate(headers) if header is None))
         selected = {h['block_height']: h for h in headers[-145:]}
         by_algo = {}
         for header in reversed(headers):

@@ -1375,7 +1375,13 @@ class Interface(Logger):
         self.logger.info(f"new fork at bad height {bad}")
         b = self.blockchain.fork(bad_header)  # type: Blockchain
         self.blockchain = b
-        assert b.forkpoint == bad
+        # fork() may immediately swap the new branch with its parent when its
+        # chainwork wins.  In that case the Blockchain object is still valid,
+        # but its forkpoint has deliberately changed; asserting the original
+        # forkpoint here turns a successful reorg into a reconnect loop.
+        if b.forkpoint != bad:
+            self.logger.info(
+                f"fork at {bad} was promoted during creation; current forkpoint={b.forkpoint}")
         return ChainResolutionMode.FORK, height
 
     async def _search_headers_backwards(
