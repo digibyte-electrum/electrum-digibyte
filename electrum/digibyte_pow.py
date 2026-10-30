@@ -28,10 +28,16 @@ def _load_library() -> ctypes.CDLL:
             _library = ctypes.CDLL(str(path))
             break
     else:
-        raise RuntimeError(
-            'DigiByte PoW library not found. Build it with '
-            'DIGIBYTE_CORE_DIR=/path/to/digibyte-core '
-            './contrib/build_digibyte_pow.sh')
+        # python-for-android places recipe libraries in the APK's native
+        # library directory; its filesystem path is not stable, so resolve
+        # the bare SONAME through Android's dynamic loader.
+        try:
+            _library = ctypes.CDLL('libdigibytepow.so')
+        except OSError as exc:
+            raise RuntimeError(
+                'DigiByte PoW library not found. Build it with '
+                'DIGIBYTE_CORE_DIR=/path/to/digibyte-core '
+                './contrib/build_digibyte_pow.sh') from exc
 
     _library.digibyte_pow_hash.argtypes = [
         ctypes.POINTER(ctypes.c_ubyte),
