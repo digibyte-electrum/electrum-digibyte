@@ -892,12 +892,19 @@ class Blockchain(Logger):
                 # than rereading and recompressing the complete chain.
                 headers = self._read_digibyte_headers(cached_end, available_end)
                 headers = self._digibyte_context + headers
-            elif start_height == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT + 1:
-                if self.height() == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT:
-                    headers = [self.read_header(constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT)]
-                else:
-                    context_start = max(0, start_height - 145)
-                    headers = self._read_digibyte_headers(context_start, start_height)
+            elif constants.net.NET_NAME == 'digibyte':
+                # DigiByte's bootstrap checkpoint is the beginning of the
+                # locally available difficulty history.  Do not try to read
+                # the sparse pre-checkpoint portion of the headers file.
+                context_start = max(
+                    constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT,
+                    start_height - 145,
+                )
+                headers = []
+                if context_start == constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT:
+                    headers.append(self.read_header(context_start))
+                    context_start += 1
+                headers.extend(self._read_digibyte_headers(context_start, start_height))
             else:
                 headers = self._read_digibyte_headers(0, start_height)
             self._digibyte_context = self._compress_digibyte_context(headers)

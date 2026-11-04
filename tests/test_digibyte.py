@@ -9,7 +9,7 @@ from electrum import util
 from electrum.wallet import Standard_Wallet
 from electrum.wallet_db import WalletDB
 from electrum.network import parse_servers
-from electrum.digibyte_difficulty import ODO_HEIGHT, POW_LIMIT, algorithm, next_bits, target_to_bits
+from electrum.digibyte_difficulty import ODO_HEIGHT, POW_LIMIT, algorithm, bits_to_target, next_bits, target_to_bits
 from electrum.digibyte_pow import pow_hash, pow_hash_batch
 from electrum.blockchain import Blockchain, BlockchainManager, deserialize_header, hash_header, serialize_header
 
@@ -157,6 +157,51 @@ def test_digibyte_checkpoint_warmup_does_not_require_pre_checkpoint_history(monk
     }
 
     assert chain.can_connect(header, check_height=False)
+
+
+def test_digibyte_context_starts_at_bootstrap_checkpoint(monkeypatch):
+    monkeypatch.setattr(constants, "net", constants.DigiByteMainnet)
+    checkpoint_height = constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT
+    chain = Blockchain.__new__(Blockchain)
+    chain.parent = None
+    chain._digibyte_context = None
+    chain.height = lambda: checkpoint_height + 146
+    chain.read_header = lambda height: {
+        'block_height': height,
+        'version': 0x20000000,
+        'timestamp': 0,
+        'bits': 0x1a4f5ed9,
+    }
+
+    def read_headers(start, end):
+        assert start >= checkpoint_height + 1
+        return [{
+            'block_height': start,
+            'version': 0x20000000,
+            'timestamp': 0,
+            'bits': 0x1a4f5ed9,
+        }]
+
+    chain._read_digibyte_headers = read_headers
+    context = chain._get_digibyte_context(checkpoint_height + 146)
+
+    assert context[0]['block_height'] == checkpoint_height + 1
+
+
+def test_digibyte_scalar_pow_check_accepts_current_scrypt_header(monkeypatch):
+    monkeypatch.setattr(constants, "net", constants.DigiByteMainnet)
+    previous = deserialize_header(bytes.fromhex(
+        '02080020a89df099f47fe70a16334a2abba99aada47b00fe8a35873b51af4f53198b96c8dfe868d3edfd4c122375c7f0f8c83d3a48a75b5ec0874ad77054783d78fa0702ac29eb6a80b0171a2067fe8c'
+    ), 24504216)
+    header = deserialize_header(bytes.fromhex(
+        '02000020a09603083f888ddd3e5352704a072582d9e84c782cd7421bf6b8493e205953c3462fa57ca968bea3d231eeb085988f35b8e4c23ee1b9adb5172920ad3863ef14cf29eb6add86691a22aea0f6'
+    ), 24504217)
+
+    Blockchain.verify_header(
+        header,
+        hash_header(previous),
+        bits_to_target(header['bits']),
+    )
 
 
 def test_digibyte_odo_activation_pow_vector():
