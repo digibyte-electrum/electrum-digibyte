@@ -812,12 +812,18 @@ class Blockchain(Logger):
         try:
             if constants.net.NET_NAME == 'digibyte':
                 from .digibyte_difficulty import next_bits, bits_to_target
-                history = self._get_digibyte_context(height)
                 bootstrap_warmup = (
                     constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT < height <=
                     constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT + 145)
-                target = (bits_to_target(header['bits']) if bootstrap_warmup
-                          else bits_to_target(next_bits(history, header)))
+                if bootstrap_warmup:
+                    # Headers immediately after the DigiByte bootstrap
+                    # checkpoint use their own compact target.  The headers
+                    # preceding the checkpoint are not stored locally, so do
+                    # not try to build a difficulty context for this range.
+                    target = bits_to_target(header['bits'])
+                else:
+                    history = self._get_digibyte_context(height)
+                    target = bits_to_target(next_bits(history, header))
             else:
                 target = self.get_target(height // CHUNK_SIZE - 1)
         except (MissingHeader, ValueError):

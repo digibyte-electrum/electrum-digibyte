@@ -141,6 +141,24 @@ def test_digibyte_batch_pow_matches_scalar_pow():
     ]
 
 
+def test_digibyte_checkpoint_warmup_does_not_require_pre_checkpoint_history(monkeypatch):
+    monkeypatch.setattr(constants, "net", constants.DigiByteMainnet)
+    checkpoint_height = constants.net.BOOTSTRAP_CHECKPOINT_HEIGHT
+    chain = Blockchain.__new__(Blockchain)
+    chain.height = lambda: checkpoint_height + 1
+    chain.get_hash = lambda height: constants.net.BOOTSTRAP_CHECKPOINT_HASH
+    chain._get_digibyte_context = lambda height: (_ for _ in ()).throw(
+        AssertionError("pre-checkpoint history should not be loaded during warmup"))
+    chain.verify_header = lambda *args, **kwargs: None
+    header = {
+        'block_height': checkpoint_height + 1,
+        'prev_block_hash': constants.net.BOOTSTRAP_CHECKPOINT_HASH,
+        'bits': 0x1a4f5ed9,
+    }
+
+    assert chain.can_connect(header, check_height=False)
+
+
 def test_digibyte_odo_activation_pow_vector():
     # Core mainnet OdoCrypt activation header at height 9,112,320.
     raw_header = bytes.fromhex(
